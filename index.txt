@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal School Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        .main-text {
+            font-size: 18vw; /* The largest original size */
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .sub-text {
+            font-size: 10vw; /* The second largest original size */
+            font-weight: 500;
+            margin-top: 0.5rem;
+            line-height: 1.1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="period-display">
+        <p class="main-text">Loading...</p>
+    </div>
+    
+    <script>
+        // Define the A and B days
+const aDays = new Set([
+            // September
+            "9/2", "9/4", "9/8", "9/10", "9/12", "9/16", "9/18", "9/22", "9/25", "9/29", 
+            // October
+            "10/1", "10/6", "10/8", "10/10", "10/14", "10/20", "10/22", "10/24", "10/28", "10/30", 
+            // November
+            "11/3", "11/5", "11/10", "11/12", "11/14", "11/18", "11/20", "11/24", "11/26", 
+            // December
+            "12/2", "12/4", "12/8", "12/10", "12/12", "12/16", "12/18", 
+            // January
+            "1/5", "1/7", "1/9", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28",
+// February
+    "2/2", "2/4", "2/6", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "2/27",
+    // March
+    "3/3", "3/5", "3/9", "3/11", "3/13", "3/17", "3/19", "3/24", "3/26", "3/30",
+    // April
+    "4/1", "4/3", "4/14", "4/16", "4/20", "4/22", "4/24", "4/28", "4/30",
+    // May
+    "5/4", "5/6", "5/8", "5/12", "5/14", "5/18", "5/20", "5/22", "5/29",
+    // June
+    "6/2", "6/4", "6/8", "6/10"
+]);
+        
+        // Strictly only days explicitly marked as 'A' or 'B'
+        const bDays = new Set([
+            // September
+            "9/3", "9/5", "9/9", "9/11", "9/15", "9/17", "9/19", "9/24", "9/26", "9/30", 
+            // October
+            "10/3", "10/7", "10/9", "10/13", "10/15", "10/21", "10/23", "10/27", "10/29", "10/31", 
+            // November
+            "11/4", "11/6", "11/11", "11/13", "11/17", "11/19", "11/21", "11/25", "11/27",
+            // December
+            "12/1", "12/3", "12/5", "12/9", "12/11", "12/15", "12/17", "12/19", 
+            // January
+            "1/6", "1/8", "1/12", "1/14", "1/16", "1/21", "1/23", "1/27", "1/29",
+// February
+    "2/3", "2/5", "2/9", "2/11", "2/13", "2/18", "2/20", "2/24", "2/26",
+    // March
+    "3/2", "3/4", "3/6", "3/10", "3/12", "3/16", "3/18", "3/23", "3/25", "3/27", "3/31",
+    // April
+    "4/2", "4/13", "4/15", "4/17", "4/21", "4/23", "4/27", "4/29",
+    // May
+    "5/1", "5/5", "5/7", "5/11", "5/13", "5/15", "5/19", "5/21",
+    // June
+    "6/1", "6/3", "6/5", "6/9", "6/11"
+]);
+
+        function getDayType() {
+            const today = new Date();
+            // Use local time for the formatted date string to match the A/B day schedule
+            const formattedDate = `${today.getMonth() + 1}/${today.getDate()}`; 
+            if (aDays.has(formattedDate)) {
+                return "A";
+            } else if (bDays.has(formattedDate)) {
+                return "B";
+            } else {
+                return null;
+            }
+        }
+
+        // Function to update the background and text color based on day type
+        function updateBackgroundColor(dayType) {
+            if (dayType === "A") {
+                // A Day is Yellow background, Black text
+                document.body.style.backgroundColor = "yellow";
+                document.body.style.color = "black";
+            } else if (dayType === "B") {
+                // B Day is Black background, White text
+                document.body.style.backgroundColor = "black";
+                document.body.style.color = "white";
+            } else {
+                // Default style for non-school days (no text displayed)
+                document.body.style.backgroundColor = "#f0f4f8"; /* Light Gray-Blue */
+                document.body.style.color = "#1a202c"; /* Dark Text (though not visible) */
+            }
+        }
+
+        // Define the school schedule periods
+        const periods = [
+            { name: "Period 1", start: "08:30", end: "09:50" },
+            { name: "Passing Time", start: "09:50", end: "09:55" },
+            { name: "Seminar", start: "09:55", end: "10:30" },
+            { name: "Passing Time", start: "10:30", end: "10:35" },
+            { name: "Period 2", start: "10:35", end: "11:50" },
+            { name: "Passing Time", start: "11:50", end: "11:55" },
+            { name: "Period 3", start: "11:55", end: "13:40" },
+            { name: "Passing Time", start: "13:40", end: "13:45" },
+            { name: "Period 4", start: "13:45", end: "15:00" }
+        ];
+
+        // Main function to update the display
+        function updatePeriodDisplay() {
+            const now = new Date();
+            const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const periodDisplayElement = document.getElementById("period-display");
+            
+            let currentPeriod = null;
+            let currentPeriodIndex = -1;
+            const dayType = getDayType();
+            updateBackgroundColor(dayType);
+
+            // *** MODIFIED: Clear display and exit if it's not an A or B day ***
+            if (dayType === null) {
+                periodDisplayElement.innerHTML = ''; // Set innerHTML to an empty string
+                return; // Exit the function
+            }
+            // *** END MODIFIED ***
+
+
+            // Check for a current period from the main schedule (Only runs if it's an A or B day)
+            for (let i = 0; i < periods.length; i++) {
+                const period = periods[i];
+                const [startHours, startMinutes] = period.start.split(':').map(Number);
+                const [endHours, endMinutes] = period.end.split(':').map(Number);
+
+                const periodStart = startHours * 3600 + startMinutes * 60;
+                const periodEnd = endHours * 3600 + endMinutes * 60;
+
+                if (currentTime >= periodStart && currentTime < periodEnd) {
+                    currentPeriod = period;
+                    currentPeriodIndex = i; // Store the index
+                    break;
+                }
+            }
+
+            // If a period is found, calculate and display time left
+            if (currentPeriod) {
+                let periodName = currentPeriod.name;
+                let timeLabel = "Time Left:"; // Default label
+
+                // Club logic for the CURRENT period display
+                if (dayType === "B" && periodName === "Seminar") {
+                    periodName = "Club period";
+                }
+
+                // Append 'A' or 'B' if it's a regular period and the day type is valid
+                if (dayType && periodName.includes("Period")) {
+                    periodName += ` ${dayType}`;
+                }
+
+                // Logic for Passing Time label
+                if (currentPeriod.name === "Passing Time" && currentPeriodIndex < periods.length - 1) {
+                    const nextPeriod = periods[currentPeriodIndex + 1];
+                    let nextPeriodLabel = nextPeriod.name;
+
+                    if (nextPeriodLabel.includes("Period")) {
+                        // For regular periods (e.g., Period 2), format as '2A' or '2B'
+                        const periodNumberMatch = nextPeriodLabel.match(/\d+/);
+                        if (periodNumberMatch) {
+                            nextPeriodLabel = `${periodNumberMatch[0]}${dayType}`;
+                        }
+                    } else if (nextPeriodLabel === "Seminar") {
+                        // Handle the Seminar/Club period
+                        if (dayType === "B") {
+                            // If it's a B day, the next period is "Club"
+                            nextPeriodLabel = "Club";
+                        } else {
+                            // If it's an A day, the next period is "Seminar"
+                            nextPeriodLabel = "Seminar";
+                        }
+                    } else {
+                        // Fallback for any other custom period name
+                        nextPeriodLabel = nextPeriodLabel;
+                    }
+
+                    // Update the label to show time until the next period
+                    timeLabel = `Time until ${nextPeriodLabel}:`;
+                }
+                
+                const [endHours, endMinutes] = currentPeriod.end.split(':').map(Number);
+                const periodEnd = endHours * 3600 + endMinutes * 60;
+                const remainingTime = Math.max(0, periodEnd - currentTime);
+                const minutesLeft = Math.floor(remainingTime / 60);
+                const secondsLeft = remainingTime % 60;
+                
+                // Format minutes and seconds to two digits
+                const formattedTime = `${String(minutesLeft).padStart(2, '0')}:${String(secondsLeft).padStart(2, '0')}`;
+                
+                // Use dynamic 'timeLabel'
+                periodDisplayElement.innerHTML = `
+                    <p class="main-text">${periodName}</p>
+                    <p class="sub-text">${timeLabel} ${formattedTime}</p>
+                `;
+            } else {
+                // Logic for before or after school (Only runs if it's an A or B day)
+                if (dayType) {
+                    const firstPeriodStart = periods[0].start;
+                    const [startHours, startMinutes] = firstPeriodStart.split(':').map(Number);
+                    const schoolStart = startHours * 3600 + startMinutes * 60;
+                    
+                    const lastPeriodEnd = periods[periods.length - 1].end;
+                    const [endHours, endMinutes] = lastPeriodEnd.split(':').map(Number);
+                    const schoolEnd = endHours * 3600 + endMinutes * 60;
+                    
+                    if (currentTime < schoolStart) {
+                        // Case: Before school starts - Using inline style for a much larger font size
+                        const timeUntilStart = schoolStart - currentTime;
+                        const minutesUntil = Math.floor(timeUntilStart / 60);
+                        const secondsUntil = timeUntilStart % 60;
+
+                        const formattedTime = `${String(minutesUntil).padStart(2, '0')}:${String(secondsUntil).padStart(2, '0')}`;
+
+                        periodDisplayElement.innerHTML = `
+                            <p class="main-text" style="font-size: 35vw;">${dayType} Day</p>
+                            <p class="sub-text">School starts in: ${formattedTime}</p>
+                        `;
+                    } else if (currentTime >= schoolEnd) {
+                        // Case: After school ends
+                        periodDisplayElement.innerHTML = `
+                            <p class="main-text">School out for the day</p>
+                        `;
+                    } else {
+                        // Fallback for an unhandled gap during the school day
+                        periodDisplayElement.innerHTML = `
+                            <p class="main-text">No Current Period</p>
+                            <p class="sub-text">${dayType} Day</p>
+                        `;
+                    }
+
+                } 
+            }
+        }
+        
+        // Update the display every second
+        window.onload = function() {
+            updatePeriodDisplay();
+            setInterval(updatePeriodDisplay, 1000);
+        };
+    </script>
+
+</body>
+</html>
