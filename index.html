@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Minimal School Schedule</title>
@@ -22,25 +22,27 @@
             transition: background-color 0.5s, color 0.5s;
             overflow: hidden;
             touch-action: manipulation; 
+            background-color: #f0f4f8; /* Fallback color */
         }
 
         #period-display {
-            width: 90vw; 
+            width: 95vw; 
             display: flex;
             flex-direction: column;
-            /* Changed back to center so each line centers itself */
             align-items: center; 
             justify-content: center;
         }
 
         .main-text, .sub-text {
             margin: 0;
+            padding: 0;
             line-height: 1.1;
             white-space: nowrap;
             display: block;
             width: 100%;
-            /* Changed to center for independent full-width scaling */
-            text-align: center; 
+            text-align: center;
+            /* Added explicit initial size to help older browsers */
+            font-size: 10vw; 
         }
 
         .main-text {
@@ -49,7 +51,7 @@
 
         .sub-text {
             font-weight: 500;
-            margin-top: 1rem;
+            margin-top: 2vh; /* Use vh for consistent spacing on iPad */
         }
     </style>
 </head>
@@ -78,13 +80,22 @@
 
         function fitText(element, maxFontSizeVW) {
             if (!element || element.innerText === "") return;
+            
+            // Set initial large size
             let fontSize = maxFontSizeVW; 
             element.style.fontSize = fontSize + "vw";
-            const maxWidth = window.innerWidth * 0.90;
-            // While text is too wide for screen, shrink font size
-            while (element.scrollWidth > maxWidth && fontSize > 1) {
-                fontSize -= 0.2;
+
+            // Older Safari needs a slight delay or a container check
+            const containerWidth = document.getElementById('period-display').offsetWidth;
+            
+            // We use getBoundingClientRect for more precision on older iOS
+            let textWidth = element.getBoundingClientRect().width;
+
+            // Loop to shrink until it fits within 98% of the container
+            while (textWidth > containerWidth * 0.98 && fontSize > 2) {
+                fontSize -= 0.5;
                 element.style.fontSize = fontSize + "vw";
+                textWidth = element.getBoundingClientRect().width;
             }
         }
 
@@ -119,8 +130,9 @@
             updateBackgroundColor(dayType);
 
             if (dayType === null) {
-                mainTextEl.innerText = ''; 
+                mainTextEl.innerText = 'No School Today'; 
                 subTextEl.innerText = '';
+                fitText(mainTextEl, 15);
                 return; 
             }
 
@@ -162,7 +174,6 @@
                 mainTextEl.innerText = pName;
                 subTextEl.innerText = `${tLabel} ${formattedTime}`;
                 
-                // Max size set very high so it shrinks down to exactly "full width"
                 fitText(mainTextEl, 25);
                 fitText(subTextEl, 25);
             } else {
@@ -181,12 +192,12 @@
                 } else if (currentTime >= schoolEnd) {
                     mainTextEl.innerText = "School out for the day";
                     subTextEl.innerText = "";
-                    fitText(mainTextEl, 20);
+                    fitText(mainTextEl, 15);
                 } else {
                     mainTextEl.innerText = "No Current Period";
                     subTextEl.innerText = `${dayType} Day`;
-                    fitText(mainTextEl, 20);
-                    fitText(subTextEl, 20);
+                    fitText(mainTextEl, 15);
+                    fitText(subTextEl, 15);
                 }
             }
         }
