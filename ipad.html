@@ -60,7 +60,6 @@
             var d=(now.getMonth()+1)+"/"+now.getDate();
             var dt=null;if(aDays.indexOf(d)>-1)dt="A";else if(bDays.indexOf(d)>-1)dt="B";
             
-            // Updated to School Bus Yellow (#FFD700)
             document.body.style.backgroundColor=(dt==="A"?"#FFD700":(dt==="B"?"black":"#f0f4f8"));
             document.body.style.color=(dt==="A"?"black":(dt==="B"?"white":"#1a202c"));
             
@@ -74,9 +73,15 @@
             }
             if(cp){
                 var pn=cp.name,tl="Time Left";if(dt==="B"&&pn==="Seminar")pn="Club period";
-                if(pn.indexOf("Period")>-1)pn+=" "+dt;
+                
+                // Removed the space here:
+                if(pn.indexOf("Period")>-1)pn+=dt;
+                
                 if(pn.indexOf("Passing")>-1&&pi<periods.length-1){
-                    var n=periods[pi+1].name;if(n.indexOf("Period")>-1)n=n.replace("Period ","")+dt;tl="Until "+n;
+                    var n=periods[pi+1].name;
+                    // Also fixed the passing time label to match:
+                    if(n.indexOf("Period")>-1)n=n.replace("Period ","")+dt;
+                    tl="Until "+n;
                 }
                 var ep=cp.end.split(':'),rem=(parseInt(ep[0])*3600+parseInt(ep[1])*60)-curr;
                 var min=Math.floor(rem/60),sec=rem%60;
