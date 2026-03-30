@@ -19,7 +19,6 @@
             box-sizing: border-box;
         }
 
-        /* This container handles the big text scaling */
         #scaling-wrapper {
             display: flex;
             flex-direction: column;
@@ -28,14 +27,6 @@
             width: 100vw;
             transition: transform 0.2s;
             transform-origin: center center;
-        }
-
-        #period-display {
-            width: 100vw;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .text-line {
@@ -59,23 +50,25 @@
         #subText { font-weight: 500; margin-top: 4vh; }
         #timeText { font-weight: 500; margin-top: 1vh; }
 
-        /* PINNED TO BOTTOM RIGHT: Outside the scaling wrapper */
+        /* GHOST BUTTON: No text, just a faint outline in the corner */
         #toggleBtn {
             position: fixed;
             bottom: 15px;
             right: 15px;
-            padding: 8px 14px;
-            background: rgba(128, 128, 128, 0.15);
-            border: 1px solid rgba(128, 128, 128, 0.3);
+            width: 50px;  /* Fixed size since there is no text */
+            height: 35px;
+            background: rgba(128, 128, 128, 0.08); /* Extremely light shading */
+            border: 1px solid rgba(128, 128, 128, 0.2); /* Subtle outline */
             border-radius: 8px;
-            color: inherit;
-            font-size: 10px;
-            font-weight: 600;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             z-index: 999;
             -webkit-appearance: none;
+            outline: none;
+        }
+        
+        /* Optional: slight feedback when you tap it */
+        #toggleBtn:active {
+            background: rgba(128, 128, 128, 0.2);
         }
     </style>
 </head>
@@ -90,7 +83,7 @@
         </div>
     </div>
 
-    <button id="toggleBtn" onclick="toggleSchedule()">Activity Schedule</button>
+    <button id="toggleBtn" onclick="toggleSchedule()"></button>
     
     <script>
         var isActivityMode = false;
@@ -103,9 +96,7 @@
 
         function toggleSchedule() {
             isActivityMode = !isActivityMode;
-            var btn = document.getElementById("toggleBtn");
             var label = document.getElementById("activityLabel");
-            btn.innerText = isActivityMode ? "Normal Schedule" : "Activity Schedule";
             label.style.display = isActivityMode ? "block" : "none";
             update();
         }
@@ -180,7 +171,6 @@
             fitToWidth(s, 0.75);
             fitToWidth(t, 0.75);
 
-            // SCALING LOGIC: Keeps text in bounds on MacBooks
             var wrapper = document.getElementById("scaling-wrapper");
             var totalHeight = wrapper.offsetHeight;
             var maxHeight = window.innerHeight * 0.92;
