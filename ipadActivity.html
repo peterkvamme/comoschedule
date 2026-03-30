@@ -13,10 +13,21 @@
             margin: 0; padding: 0;
             height: 100vh; width: 100vw;
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center; /* Center everything vertically */
+            align-items: center; justify-content: center;
             overflow: hidden;
             background-color: #f0f4f8;
             box-sizing: border-box;
+        }
+
+        /* This container handles the big text scaling */
+        #scaling-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            transition: transform 0.2s;
+            transform-origin: center center;
         }
 
         #period-display {
@@ -25,7 +36,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: transform 0.2s; /* Smooth scaling if it needs to shrink */
         }
 
         .text-line {
@@ -49,33 +59,35 @@
         #subText { font-weight: 500; margin-top: 4vh; }
         #timeText { font-weight: 500; margin-top: 1vh; }
 
+        /* PINNED TO BOTTOM RIGHT: Outside the scaling wrapper */
         #toggleBtn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 18px;
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            padding: 8px 14px;
             background: rgba(128, 128, 128, 0.15);
             border: 1px solid rgba(128, 128, 128, 0.3);
-            border-radius: 10px;
+            border-radius: 8px;
             color: inherit;
-            font-size: 11px;
-            font-weight: 500;
+            font-size: 10px;
+            font-weight: 600;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
+            z-index: 999;
             -webkit-appearance: none;
-            z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <div id="activityLabel" class="text-line">Activity Day</div>
-
-    <div id="period-display">
-        <div id="mainContainer"><p class="text-line" id="mainText">&nbsp;</p></div>
-        <div id="subContainer"><p class="text-line" id="subText"></p></div>
-        <div id="timeContainer"><p class="text-line" id="timeText"></p></div>
+    <div id="scaling-wrapper">
+        <div id="activityLabel" class="text-line">Activity Day</div>
+        <div id="period-display">
+            <div id="mainContainer"><p class="text-line" id="mainText">&nbsp;</p></div>
+            <div id="subContainer"><p class="text-line" id="subText"></p></div>
+            <div id="timeContainer"><p class="text-line" id="timeText"></p></div>
+        </div>
     </div>
 
     <button id="toggleBtn" onclick="toggleSchedule()">Activity Schedule</button>
@@ -98,13 +110,12 @@
             update();
         }
 
-        // BACK TO BASICS: Scale for width only
         function fitToWidth(e, w) {
             if (!e || e.innerText === "" || e.innerHTML === "&nbsp;") return;
             var s = 10;
             e.style.fontSize = s + "px";
             var maxW = window.innerWidth * w;
-            while (e.offsetWidth < maxW && s < 600) {
+            while (e.offsetWidth < maxW && s < 800) {
                 s += 2;
                 e.style.fontSize = s + "px";
             }
@@ -144,17 +155,14 @@
                 var pn = cp.name, tl = "Time Left";
                 if (dt === "B" && pn === "Seminar") pn = "Club period";
                 if (pn.indexOf("Period") > -1) pn += dt;
-
                 if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
                     var n = activeSchedule[pi + 1].name;
                     if (n.indexOf("Period") > -1) n = n.replace("Period ", "") + dt;
                     else if (n === "Seminar") n = (dt === "B") ? "Club" : "Seminar";
                     tl = "Until " + n;
                 }
-
                 var ep = cp.end.split(':'), rem = (parseInt(ep[0])*3600 + parseInt(ep[1])*60) - curr;
                 var min = Math.floor(rem/60), sec = rem % 60;
-                
                 m.innerText = pn; s.innerText = tl;
                 t.innerText = (min < 10 ? "0"+min : min) + ":" + (sec < 10 ? "0"+sec : sec);
             } else {
@@ -167,24 +175,21 @@
                 } else { m.innerText = "School Out"; s.innerText = ""; t.innerText = ""; }
             }
             
-            // Run scaling
             if(isActivityMode) fitToWidth(actL, 0.40); 
             fitToWidth(m, 0.92);
             fitToWidth(s, 0.75);
             fitToWidth(t, 0.75);
 
-            // POST-SCALING HEIGHT CHECK:
-            // If the whole display is taller than 90% of the window, shrink it via CSS Transform
-            var display = document.getElementById("period-display");
-            var actLabel = document.getElementById("activityLabel");
-            var totalHeight = display.offsetHeight + (isActivityMode ? actLabel.offsetHeight : 0);
-            var maxHeight = window.innerHeight * 0.9;
+            // SCALING LOGIC: Keeps text in bounds on MacBooks
+            var wrapper = document.getElementById("scaling-wrapper");
+            var totalHeight = wrapper.offsetHeight;
+            var maxHeight = window.innerHeight * 0.92;
             
             if (totalHeight > maxHeight) {
                 var ratio = maxHeight / totalHeight;
-                display.parentElement.style.transform = "scale(" + ratio + ")";
+                wrapper.style.transform = "scale(" + ratio + ")";
             } else {
-                display.parentElement.style.transform = "scale(1)";
+                wrapper.style.transform = "scale(1)";
             }
         }
 
