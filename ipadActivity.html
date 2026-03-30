@@ -13,23 +13,21 @@
             margin: 0; padding: 0;
             height: 100vh; width: 100vw;
             display: flex; flex-direction: column;
-            align-items: center; justify-content: flex-start; 
-            padding-top: 2vh; 
+            align-items: center; justify-content: center; /* Center everything vertically */
             overflow: hidden;
             background-color: #f0f4f8;
             box-sizing: border-box;
         }
+
         #period-display {
             width: 100vw;
-            /* Added flex-grow and max-height to keep everything contained */
-            flex-grow: 1;
-            max-height: 85vh; 
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            transition: transform 0.2s; /* Smooth scaling if it needs to shrink */
         }
+
         .text-line {
             margin: 0; padding: 0;
             line-height: 0.85;
@@ -44,11 +42,11 @@
             display: none; 
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 1vh;
+            margin-bottom: 2vh;
         }
 
         #mainText { font-weight: 700; }
-        #subText { font-weight: 500; margin-top: 3vh; }
+        #subText { font-weight: 500; margin-top: 4vh; }
         #timeText { font-weight: 500; margin-top: 1vh; }
 
         #toggleBtn {
@@ -100,16 +98,13 @@
             update();
         }
 
+        // BACK TO BASICS: Scale for width only
         function fitToWidth(e, w) {
             if (!e || e.innerText === "" || e.innerHTML === "&nbsp;") return;
             var s = 10;
             e.style.fontSize = s + "px";
             var maxW = window.innerWidth * w;
-            // HEIGHT GUARD: ensures the container doesn't exceed 85% of screen height
-            var maxH = window.innerHeight * 0.85; 
-            var container = document.getElementById("period-display");
-
-            while (e.offsetWidth < maxW && container.offsetHeight < maxH && s < 600) {
+            while (e.offsetWidth < maxW && s < 600) {
                 s += 2;
                 e.style.fontSize = s + "px";
             }
@@ -160,25 +155,37 @@
                 var ep = cp.end.split(':'), rem = (parseInt(ep[0])*3600 + parseInt(ep[1])*60) - curr;
                 var min = Math.floor(rem/60), sec = rem % 60;
                 
-                m.innerText = pn;
-                s.innerText = tl;
+                m.innerText = pn; s.innerText = tl;
                 t.innerText = (min < 10 ? "0"+min : min) + ":" + (sec < 10 ? "0"+sec : sec);
             } else {
                 var f = activeSchedule[0].start.split(':'), sS = parseInt(f[0])*3600 + parseInt(f[1])*60;
                 if (curr < sS) {
-                    m.innerText = dt + " Day";
-                    s.innerText = "Starts In";
+                    m.innerText = dt + " Day"; s.innerText = "Starts In";
                     var df = sS - curr;
                     var m2 = Math.floor(df/60), s2 = df % 60;
                     t.innerText = (m2 < 10 ? "0"+m2 : m2) + ":" + (s2 < 10 ? "0"+s2 : s2);
-                } else {
-                    m.innerText = "School Out"; s.innerText = ""; t.innerText = "";
-                }
+                } else { m.innerText = "School Out"; s.innerText = ""; t.innerText = ""; }
             }
+            
+            // Run scaling
             if(isActivityMode) fitToWidth(actL, 0.40); 
             fitToWidth(m, 0.92);
             fitToWidth(s, 0.75);
             fitToWidth(t, 0.75);
+
+            // POST-SCALING HEIGHT CHECK:
+            // If the whole display is taller than 90% of the window, shrink it via CSS Transform
+            var display = document.getElementById("period-display");
+            var actLabel = document.getElementById("activityLabel");
+            var totalHeight = display.offsetHeight + (isActivityMode ? actLabel.offsetHeight : 0);
+            var maxHeight = window.innerHeight * 0.9;
+            
+            if (totalHeight > maxHeight) {
+                var ratio = maxHeight / totalHeight;
+                display.parentElement.style.transform = "scale(" + ratio + ")";
+            } else {
+                display.parentElement.style.transform = "scale(1)";
+            }
         }
 
         window.onload = function() {
