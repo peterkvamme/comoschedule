@@ -34,34 +34,37 @@
             font-variant-numeric: tabular-nums;
         }
         
-        /* Activity Day Label: Bold, Red, and Standout */
+        /* Activity Day Label: Now uses display:none to reclaim space */
         #activityLabel { 
             font-weight: 800; 
-            color: #FF3B30; /* Bright iOS Red */
-            height: 8vh; 
-            visibility: hidden; 
+            color: #FF3B30; 
+            display: none; /* Changed from visibility:hidden */
             text-transform: uppercase;
             letter-spacing: 2px;
+            margin-bottom: 2vh;
         }
 
         #mainText { font-weight: 700; }
         #subText { font-weight: 500; margin-top: 4vh; }
         #timeText { font-weight: 500; margin-top: 1vh; }
 
+        /* Button moved to Bottom Right */
         #toggleBtn {
             position: absolute;
-            bottom: 25px;
-            padding: 12px 24px;
+            bottom: 20px;
+            right: 20px; /* Moved from middle to right */
+            padding: 10px 18px;
             background: rgba(128, 128, 128, 0.15);
             border: 1px solid rgba(128, 128, 128, 0.3);
-            border-radius: 12px;
+            border-radius: 10px;
             color: inherit;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
             -webkit-appearance: none;
+            z-index: 100;
         }
     </style>
 </head>
@@ -113,11 +116,11 @@
             var label = document.getElementById("activityLabel");
             
             if (isActivityMode) {
-                btn.innerText = "Switch to Normal Day";
-                label.style.visibility = "visible";
+                btn.innerText = "Normal Schedule";
+                label.style.display = "block"; // Takes up space only when active
             } else {
-                btn.innerText = "Switch to Activity Day";
-                label.style.visibility = "hidden";
+                btn.innerText = "Activity Schedule";
+                label.style.display = "none"; // Removes space completely
             }
             update();
         }
@@ -193,7 +196,7 @@
                     m.innerText = "School Out"; s.innerText = ""; t.innerText = "";
                 }
             }
-            fitToWidth(actL, 0.40); // Sized to be prominent
+            if(isActivityMode) fitToWidth(actL, 0.40); 
             fitToWidth(m, 0.92);
             fitToWidth(s, 0.75);
             fitToWidth(t, 0.75);
