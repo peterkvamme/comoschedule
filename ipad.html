@@ -13,34 +13,42 @@
             margin: 0; padding: 0;
             height: 100vh; width: 100vw;
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            /* Anchors content to the top instead of the center */
+            align-items: center; justify-content: flex-start; 
+            padding-top: 2vh; 
             overflow: hidden;
             background-color: #f0f4f8;
+            box-sizing: border-box;
         }
         #period-display {
-            width: 96vw;
+            width: 92vw;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .main-text, .sub-text {
+        .text-line {
             margin: 0; padding: 0;
-            line-height: 1;
+            line-height: 0.85;
             white-space: nowrap;
             display: inline-block;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
         }
-        .sub-text { margin-top: 3vh; }
+        /* Vertical spacing between the three rows */
+        #subText { margin-top: 3vh; }
+        #timeText { margin-top: 1vh; }
     </style>
 </head>
 <body>
 
     <div id="period-display">
-        <div id="mainContainer"><p class="main-text" id="mainText">Loading...</p></div>
-        <div id="subContainer"><p class="sub-text" id="subText"></p></div>
+        <div id="mainContainer"><p class="text-line" id="mainText">Loading...</p></div>
+        <div id="subContainer"><p class="text-line" id="subText"></p></div>
+        <div id="timeContainer"><p class="text-line" id="timeText"></p></div>
     </div>
     
     <script>
-        // Using Arrays instead of Sets for iOS 12 compatibility
         var aDays = ["9/2", "9/4", "9/8", "9/10", "9/12", "9/16", "9/18", "9/22", "9/25", "9/29", "10/1", "10/6", "10/8", "10/10", "10/14", "10/20", "10/22", "10/24", "10/28", "10/30", "11/3", "11/5", "11/10", "11/12", "11/14", "11/18", "11/20", "11/24", "11/26", "12/2", "12/4", "12/8", "12/10", "12/12", "12/16", "12/18", "1/5", "1/7", "1/9", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28", "2/2", "2/4", "2/6", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "2/27", "3/3", "3/5", "3/9", "3/11", "3/13", "3/17", "3/19", "3/24", "3/26", "3/30", "4/1", "4/3", "4/14", "4/16", "4/20", "4/22", "4/24", "4/28", "4/30", "5/4", "5/6", "5/8", "5/12", "5/14", "5/18", "5/20", "5/22", "5/29", "6/2", "6/4", "6/8", "6/10"];
         var bDays = ["9/3", "9/5", "9/9", "9/11", "9/15", "9/17", "9/19", "9/24", "9/26", "9/30", "10/3", "10/7", "10/9", "10/13", "10/15", "10/21", "10/23", "10/27", "10/29", "10/31", "11/4", "11/6", "11/11", "11/13", "11/17", "11/19", "11/21", "11/25", "11/27", "12/1", "12/3", "12/5", "12/9", "12/11", "12/15", "12/17", "12/19", "1/6", "1/8", "1/12", "1/14", "1/16", "1/21", "1/23", "1/27", "1/29", "2/3", "2/5", "2/9", "2/11", "2/13", "2/18", "2/20", "2/24", "2/26", "3/2", "3/4", "3/6", "3/10", "3/12", "3/16", "3/18", "3/23", "3/25", "3/27", "3/31", "4/2", "4/13", "4/15", "4/17", "4/21", "4/23", "4/27", "4/29", "5/1", "5/5", "5/7", "5/11", "5/13", "5/15", "5/19", "5/21", "6/1", "6/3", "6/5", "6/9", "6/11"];
 
@@ -60,14 +68,13 @@
             if (!element || element.innerText === "") return;
             var size = 10;
             element.style.fontSize = size + "px";
-            var maxWidth = window.innerWidth * 0.94;
-            // Standard offsetWidth works best on iOS 12
-            while (element.offsetWidth < maxWidth && size < 400) {
+            var maxWidth = window.innerWidth * 0.92;
+            // Growth loop for stability on older iOS
+            while (element.offsetWidth < maxWidth && size < 600) {
                 size += 2;
                 element.style.fontSize = size + "px";
             }
-            // Back off slightly
-            size -= 4;
+            size -= 4; // Buffer to prevent overflow
             element.style.fontSize = size + "px";
         }
 
@@ -94,10 +101,12 @@
 
             var mainTextEl = document.getElementById("mainText");
             var subTextEl = document.getElementById("subText");
+            var timeTextEl = document.getElementById("timeText");
 
             if (!dayType) {
                 mainTextEl.innerText = "No School";
                 subTextEl.innerText = "";
+                timeTextEl.innerText = "";
                 fitToWidth(mainTextEl);
                 return;
             }
@@ -119,7 +128,7 @@
 
             if (currentPeriod) {
                 var pName = currentPeriod.name;
-                var tLabel = "Time Left:";
+                var tLabel = "Time Left";
                 if (dayType === "B" && pName === "Seminar") pName = "Club period";
                 if (pName.indexOf("Period") > -1) pName += " " + dayType;
 
@@ -127,7 +136,7 @@
                     var next = periods[pIndex + 1];
                     var nextName = next.name;
                     if (nextName.indexOf("Period") > -1) nextName = nextName.replace("Period ", "") + dayType;
-                    tLabel = "Until " + nextName + ":";
+                    tLabel = "Until " + nextName;
                 }
 
                 var eParts = currentPeriod.end.split(':');
@@ -137,24 +146,27 @@
                 var timeStr = (m < 10 ? "0"+m : m) + ":" + (s < 10 ? "0"+s : s);
 
                 mainTextEl.innerText = pName;
-                subTextEl.innerText = tLabel + " " + timeStr;
+                subTextEl.innerText = tLabel;
+                timeTextEl.innerText = timeStr;
             } else {
-                // Before/After school logic
                 var first = periods[0].start.split(':');
                 var schoolStart = parseInt(first[0])*3600 + parseInt(first[1])*60;
                 if (currentTime < schoolStart) {
                     mainTextEl.innerText = dayType + " Day";
+                    subTextEl.innerText = "Starts In";
                     var diff = schoolStart - currentTime;
                     var m2 = Math.floor(diff/60);
                     var s2 = diff % 60;
-                    subTextEl.innerText = "Starts in " + (m2 < 10 ? "0"+m2 : m2) + ":" + (s2 < 10 ? "0"+s2 : s2);
+                    timeTextEl.innerText = (m2 < 10 ? "0"+m2 : m2) + ":" + (s2 < 10 ? "0"+s2 : s2);
                 } else {
                     mainTextEl.innerText = "School Out";
                     subTextEl.innerText = "";
+                    timeTextEl.innerText = "";
                 }
             }
             fitToWidth(mainTextEl);
             fitToWidth(subTextEl);
+            fitToWidth(timeTextEl);
         }
 
         window.onload = function() {
