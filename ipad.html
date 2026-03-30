@@ -37,9 +37,17 @@
         }
         
         /* Font weight logic */
-        #mainText { font-weight: 700; }
-        #subText { font-weight: 500; margin-top: 5vh; } /* Not bold */
-        #timeText { font-weight: 700; margin-top: 1vh; }
+        #mainText { 
+            font-weight: 700; /* Bold Period Name */
+        }
+        #subText { 
+            font-weight: 500; /* Normal "Time Left" */
+            margin-top: 5vh; 
+        }
+        #timeText { 
+            font-weight: 500; /* Normal Numbers */
+            margin-top: 1vh; 
+        }
 
     </style>
 </head>
@@ -67,7 +75,6 @@
             { name: "Period 4", start: "13:45", end: "15:00" }
         ];
 
-        // Added widthPercentage parameter to control line width
         function fitToWidth(element, widthPercentage) {
             if (!element || element.innerText === "") return;
             var size = 10;
@@ -168,10 +175,9 @@
                 }
             }
             
-            // Custom widths per row
-            fitToWidth(mainTextEl, 0.92); // Main Period: 92% width
-            fitToWidth(subTextEl, 0.75);  // Label: 75% width
-            fitToWidth(timeTextEl, 0.75); // Numbers: 75% width
+            fitToWidth(mainTextEl, 0.92);
+            fitToWidth(subTextEl, 0.75);
+            fitToWidth(timeTextEl, 0.75);
         }
 
         window.onload = function() {
