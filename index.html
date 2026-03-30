@@ -16,17 +16,21 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
+            /* Tabular nums ensures numbers don't shift width as they change */
+            font-variant-numeric: tabular-nums; 
             transition: background-color 0.5s, color 0.5s;
             overflow: hidden; 
         }
 
         #period-display {
-            width: 95vw; /* Leave a tiny bit of breathing room on the edges */
+            width: 90vw; 
             display: flex;
             flex-direction: column;
-            align-items: center;
+            /* Changed to flex-start to left-justify the lines relative to each other */
+            align-items: flex-start; 
             justify-content: center;
+            /* This centers the whole left-aligned block in the middle of the screen */
+            margin: 0 auto; 
         }
 
         .main-text, .sub-text {
@@ -34,7 +38,7 @@
             line-height: 1.1;
             white-space: nowrap;
             display: inline-block;
-            width: auto;
+            text-align: left; /* Left justify the text itself */
         }
 
         .main-text {
@@ -70,15 +74,11 @@
             { name: "Period 4", start: "13:45", end: "15:00" }
         ];
 
-        // This function forces the text to be as large as possible without overflowing
         function fitText(element, maxFontSizeVW) {
             if (!element || element.innerText === "") return;
-            
-            let fontSize = maxFontSizeVW; // Start with the preferred max size
+            let fontSize = maxFontSizeVW; 
             element.style.fontSize = fontSize + "vw";
-
-            // If the text is wider than the container, shrink it until it fits
-            const maxWidth = window.innerWidth * 0.95;
+            const maxWidth = window.innerWidth * 0.90;
             while (element.offsetWidth > maxWidth && fontSize > 1) {
                 fontSize -= 0.5;
                 element.style.fontSize = fontSize + "vw";
@@ -138,7 +138,6 @@
             if (currentPeriod) {
                 let pName = currentPeriod.name;
                 let tLabel = "Time Left:"; 
-
                 if (dayType === "B" && pName === "Seminar") pName = "Club period";
                 if (pName.includes("Period")) pName += ` ${dayType}`;
 
@@ -172,7 +171,7 @@
                     const formattedTime = `${String(Math.floor(diff/60)).padStart(2, '0')}:${String(diff%60).padStart(2, '0')}`;
                     mainTextEl.innerText = `${dayType} Day`;
                     subTextEl.innerText = `School starts in: ${formattedTime}`;
-                    fitText(mainTextEl, 35); // Max size allowed, will shrink if it hits edges
+                    fitText(mainTextEl, 35);
                     fitText(subTextEl, 10);
                 } else if (currentTime >= schoolEnd) {
                     mainTextEl.innerText = "School out for the day";
