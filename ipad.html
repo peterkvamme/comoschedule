@@ -5,23 +5,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/180">
+    
     <title>iPad Clock</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             margin: 0; padding: 0;
             height: 100vh; width: 100vw;
             display: flex; flex-direction: column;
-            /* Anchors content to the top instead of the center */
             align-items: center; justify-content: flex-start; 
-            padding-top: 2vh; 
+            padding-top: 4vh; 
             overflow: hidden;
             background-color: #f0f4f8;
             box-sizing: border-box;
         }
         #period-display {
-            width: 92vw;
+            width: 100vw;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -29,15 +30,17 @@
         }
         .text-line {
             margin: 0; padding: 0;
-            line-height: 0.85;
+            line-height: 0.9;
             white-space: nowrap;
             display: inline-block;
-            font-weight: 700;
             font-variant-numeric: tabular-nums;
         }
-        /* Vertical spacing between the three rows */
-        #subText { margin-top: 3vh; }
-        #timeText { margin-top: 1vh; }
+        
+        /* Font weight logic */
+        #mainText { font-weight: 700; }
+        #subText { font-weight: 500; margin-top: 5vh; } /* Not bold */
+        #timeText { font-weight: 700; margin-top: 1vh; }
+
     </style>
 </head>
 <body>
@@ -64,17 +67,18 @@
             { name: "Period 4", start: "13:45", end: "15:00" }
         ];
 
-        function fitToWidth(element) {
+        // Added widthPercentage parameter to control line width
+        function fitToWidth(element, widthPercentage) {
             if (!element || element.innerText === "") return;
             var size = 10;
             element.style.fontSize = size + "px";
-            var maxWidth = window.innerWidth * 0.92;
-            // Growth loop for stability on older iOS
+            var maxWidth = window.innerWidth * widthPercentage;
+            
             while (element.offsetWidth < maxWidth && size < 600) {
                 size += 2;
                 element.style.fontSize = size + "px";
             }
-            size -= 4; // Buffer to prevent overflow
+            size -= 4;
             element.style.fontSize = size + "px";
         }
 
@@ -87,7 +91,6 @@
             if (aDays.indexOf(formattedDate) > -1) dayType = "A";
             else if (bDays.indexOf(formattedDate) > -1) dayType = "B";
 
-            // Colors
             if (dayType === "A") {
                 document.body.style.backgroundColor = "yellow";
                 document.body.style.color = "black";
@@ -107,7 +110,7 @@
                 mainTextEl.innerText = "No School";
                 subTextEl.innerText = "";
                 timeTextEl.innerText = "";
-                fitToWidth(mainTextEl);
+                fitToWidth(mainTextEl, 0.92);
                 return;
             }
 
@@ -164,9 +167,11 @@
                     timeTextEl.innerText = "";
                 }
             }
-            fitToWidth(mainTextEl);
-            fitToWidth(subTextEl);
-            fitToWidth(timeTextEl);
+            
+            // Custom widths per row
+            fitToWidth(mainTextEl, 0.92); // Main Period: 92% width
+            fitToWidth(subTextEl, 0.75);  // Label: 75% width
+            fitToWidth(timeTextEl, 0.75); // Numbers: 75% width
         }
 
         window.onload = function() {
