@@ -161,7 +161,7 @@
 
             if (cp) {
                 var pn = cp.name, tl = "Time Left";
-                if (dt === "B" && pn === "Seminar") pn = "Club period";
+                if (dt === "B" && pn === "Seminar") pn = "Club";
                 if (pn.indexOf("Period") > -1) pn += dt;
                 if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
                     var n = activeSchedule[pi + 1].name;
