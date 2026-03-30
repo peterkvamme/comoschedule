@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Minimal School Schedule</title>
@@ -15,22 +15,21 @@
             height: 100vh;
             width: 100vw;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-variant-numeric: tabular-nums; 
             transition: background-color 0.5s, color 0.5s;
             overflow: hidden;
-            touch-action: manipulation; 
-            background-color: #f0f4f8; /* Fallback color */
+            touch-action: manipulation;
         }
 
         #period-display {
-            width: 95vw; 
+            width: 92vw; 
             display: flex;
             flex-direction: column;
             align-items: center; 
             justify-content: center;
+            text-align: center;
         }
 
         .main-text, .sub-text {
@@ -40,9 +39,6 @@
             white-space: nowrap;
             display: block;
             width: 100%;
-            text-align: center;
-            /* Added explicit initial size to help older browsers */
-            font-size: 10vw; 
         }
 
         .main-text {
@@ -51,7 +47,7 @@
 
         .sub-text {
             font-weight: 500;
-            margin-top: 2vh; /* Use vh for consistent spacing on iPad */
+            margin-top: 2vh;
         }
     </style>
 </head>
@@ -78,24 +74,23 @@
             { name: "Period 4", start: "13:45", end: "15:00" }
         ];
 
-        function fitText(element, maxFontSizeVW) {
+        function fitText(element, startSize) {
             if (!element || element.innerText === "") return;
             
-            // Set initial large size
-            let fontSize = maxFontSizeVW; 
+            let fontSize = startSize;
             element.style.fontSize = fontSize + "vw";
 
-            // Older Safari needs a slight delay or a container check
-            const containerWidth = document.getElementById('period-display').offsetWidth;
+            // Get the actual width of the viewport
+            const maxWidth = window.innerWidth * 0.92;
             
-            // We use getBoundingClientRect for more precision on older iOS
-            let textWidth = element.getBoundingClientRect().width;
-
-            // Loop to shrink until it fits within 98% of the container
-            while (textWidth > containerWidth * 0.98 && fontSize > 2) {
+            // Loop: while the text element is wider than our 92% limit, shrink it
+            // Using offsetWidth is more reliable for older iPad Safari
+            let currentWidth = element.offsetWidth;
+            
+            while (currentWidth > maxWidth && fontSize > 1) {
                 fontSize -= 0.5;
                 element.style.fontSize = fontSize + "vw";
-                textWidth = element.getBoundingClientRect().width;
+                currentWidth = element.offsetWidth;
             }
         }
 
@@ -132,7 +127,7 @@
             if (dayType === null) {
                 mainTextEl.innerText = 'No School Today'; 
                 subTextEl.innerText = '';
-                fitText(mainTextEl, 15);
+                fitText(mainTextEl, 12);
                 return; 
             }
 
@@ -174,8 +169,8 @@
                 mainTextEl.innerText = pName;
                 subTextEl.innerText = `${tLabel} ${formattedTime}`;
                 
-                fitText(mainTextEl, 25);
-                fitText(subTextEl, 25);
+                fitText(mainTextEl, 22);
+                fitText(subTextEl, 18);
             } else {
                 const firstStart = periods[0].start.split(':').map(Number);
                 const schoolStart = firstStart[0]*3600 + firstStart[1]*60;
@@ -187,8 +182,8 @@
                     const formattedTime = `${String(Math.floor(diff/60)).padStart(2, '0')}:${String(diff%60).padStart(2, '0')}`;
                     mainTextEl.innerText = `${dayType} Day`;
                     subTextEl.innerText = `School starts in: ${formattedTime}`;
-                    fitText(mainTextEl, 40);
-                    fitText(subTextEl, 40);
+                    fitText(mainTextEl, 35);
+                    fitText(subTextEl, 15);
                 } else if (currentTime >= schoolEnd) {
                     mainTextEl.innerText = "School out for the day";
                     subTextEl.innerText = "";
