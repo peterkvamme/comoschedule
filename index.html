@@ -25,8 +25,25 @@
             align-items: center;
             justify-content: center;
             width: 100vw;
+            text-align: center; /* Force internal text centering */
             transition: transform 0.2s;
             transform-origin: center center;
+        }
+
+        #period-display {
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ensure every container is a centered flex column */
+        #mainContainer, #subContainer, #timeContainer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            text-align: center;
         }
 
         .text-line {
@@ -35,6 +52,7 @@
             white-space: nowrap;
             display: inline-block;
             font-variant-numeric: tabular-nums;
+            text-align: center;
         }
         
         #activityLabel { 
@@ -44,21 +62,21 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 2vh;
+            text-align: center;
         }
 
         #mainText { font-weight: 700; }
         #subText { font-weight: 500; margin-top: 4vh; }
         #timeText { font-weight: 500; margin-top: 1vh; }
 
-        /* GHOST BUTTON: No text, just a faint outline in the corner */
         #toggleBtn {
             position: fixed;
             bottom: 15px;
             right: 15px;
-            width: 50px;  /* Fixed size since there is no text */
+            width: 50px;
             height: 35px;
-            background: rgba(128, 128, 128, 0.08); /* Extremely light shading */
-            border: 1px solid rgba(128, 128, 128, 0.2); /* Subtle outline */
+            background: rgba(128, 128, 128, 0.08);
+            border: 1px solid rgba(128, 128, 128, 0.2);
             border-radius: 8px;
             cursor: pointer;
             z-index: 999;
@@ -66,7 +84,6 @@
             outline: none;
         }
         
-        /* Optional: slight feedback when you tap it */
         #toggleBtn:active {
             background: rgba(128, 128, 128, 0.2);
         }
