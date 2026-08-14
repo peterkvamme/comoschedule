@@ -91,6 +91,59 @@
         #toggleBtn:active {
             background: rgba(128, 128, 128, 0.2);
         }
+
+
+        /* VERTICAL CAROUSEL OPTIMIZATION */
+        @media (max-aspect-ratio: 3/4) {
+            #scaling-wrapper {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 2vh 2vw;
+                box-sizing: border-box;
+            }
+
+            #period-display {
+                width: 100%;
+            }
+
+            #mainContainer, #subContainer, #timeContainer {
+                width: 100%;
+            }
+
+            .text-line {
+                max-width: 96vw;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                line-height: 0.9;
+            }
+
+            #activityLabel {
+                margin-bottom: 2vh;
+                padding: 0.8vh 4vw;
+            }
+
+            #mainText {
+                line-height: 0.88;
+            }
+
+            #subText {
+                margin-top: 2.5vh;
+                line-height: 1;
+            }
+
+            #timeText {
+                margin-top: 0.8vh;
+                line-height: 0.95;
+            }
+
+            #toggleBtn {
+                width: 34px;
+                height: 24px;
+                bottom: 8px;
+                right: 8px;
+                opacity: 0.35;
+            }
+        }
     </style>
 </head>
 <body>
@@ -113,7 +166,13 @@
         var isActivityMode = false;
 
         var activityPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Period 2",start:"09:35",end:"10:35"},{name:"Passing Time",start:"10:35",end:"10:40"},{name:"Period 4",start:"10:40",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Seminar",start:"13:45",end:"15:00"}];
+        var firstTwoDaysPeriods = [{name:"Seminar",start:"08:30",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 1",start:"10:35",end:"11:30"},{name:"Passing Time",start:"11:30",end:"11:35"},{name:"Period 3",start:"11:35",end:"13:00"},{name:"Passing Time",start:"13:00",end:"13:05"},{name:"Period 2",start:"13:05",end:"14:00"},{name:"Passing Time",start:"14:00",end:"14:05"},{name:"Period 4",start:"14:05",end:"15:00"}];
         var normalPeriods = [{name:"Period 1",start:"08:30",end:"09:50"},{name:"Passing Time",start:"09:50",end:"09:55"},{name:"Seminar",start:"09:55",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 2",start:"10:35",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
+
+        // SPECIAL-DAY DATE LISTS. Add dates using M/D format, for example "9/18".
+        var activityDays = [];
+        var firstDayOfSchoolDates = ["9/2"];
+        var secondDayOfSchoolDates = ["9/3"];
 
         var aDays = ["9/2", "9/4", "9/8", "9/10", "9/12", "9/16", "9/18", "9/22", "9/25", "9/29", "10/1", "10/6", "10/8", "10/10", "10/14", "10/20", "10/22", "10/24", "10/28", "10/30", "11/3", "11/5", "11/10", "11/12", "11/14", "11/18", "11/20", "11/24", "11/26", "12/2", "12/4", "12/8", "12/10", "12/12", "12/16", "12/18", "1/5", "1/7", "1/9", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28", "2/2", "2/4", "2/6", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "2/27", "3/3", "3/5", "3/9", "3/11", "3/13", "3/17", "3/19", "3/24", "3/26", "3/30", "4/1", "4/3", "4/14", "4/16", "4/20", "4/22", "4/24", "4/28", "4/30", "5/4", "5/6", "5/8", "5/12", "5/14", "5/18", "5/20", "5/22", "5/29", "6/2", "6/4", "6/8", "6/10"];
         var bDays = ["9/3", "9/5", "9/9", "9/11", "9/15", "9/17", "9/19", "9/24", "9/26", "9/30", "10/3", "10/7", "10/9", "10/13", "10/15", "10/21", "10/23", "10/27", "10/29", "10/31", "11/4", "11/6", "11/11", "11/13", "11/17", "11/19", "11/21", "11/25", "11/27", "12/1", "12/3", "12/5", "12/9", "12/11", "12/15", "12/17", "12/19", "1/6", "1/8", "1/12", "1/14", "1/16", "1/21", "1/23", "1/27", "1/29", "2/3", "2/5", "2/9", "2/11", "2/13", "2/18", "2/20", "2/24", "2/26", "3/2", "3/4", "3/6", "3/10", "3/12", "3/16", "3/18", "3/23", "3/25", "3/27", "3/31", "4/2", "4/13", "4/15", "4/17", "4/21", "4/23", "4/27", "4/29", "5/1", "5/5", "5/7", "5/11", "5/13", "5/15", "5/19", "5/21", "5/28", "6/1", "6/3", "6/5", "6/9", "6/11"];
@@ -130,6 +189,7 @@
             var s = 10;
             e.style.fontSize = s + "px";
             var maxW = window.innerWidth * w;
+            if (window.innerHeight > window.innerWidth) maxW = window.innerWidth * Math.min(w, 0.86);
             while (e.offsetWidth < maxW && s < 800) {
                 s += 2;
                 e.style.fontSize = s + "px";
@@ -153,11 +213,27 @@
             var actL = document.getElementById("activityLabel");
 
             if (!dt) {
+                actL.style.display = "none";
                 m.innerText = "No School Today"; s.innerText = ""; t.innerText = "";
                 fitToWidth(m, 0.92); return;
             }
 
-            var activeSchedule = isActivityMode ? activityPeriods : normalPeriods;
+            var isFirstDay = firstDayOfSchoolDates.indexOf(d) > -1;
+            var isSecondDay = secondDayOfSchoolDates.indexOf(d) > -1;
+            var isAutomaticActivityDay = activityDays.indexOf(d) > -1;
+            var isFirstTwoDaysSchedule = isFirstDay || isSecondDay;
+            var useActivitySchedule = !isFirstTwoDaysSchedule && (isAutomaticActivityDay || isActivityMode);
+
+            var activeSchedule = isFirstTwoDaysSchedule ? firstTwoDaysPeriods : (useActivitySchedule ? activityPeriods : normalPeriods);
+            var specialDayLabel = isFirstDay ? "First day of school" : (isSecondDay ? "Second day of school" : (useActivitySchedule ? "Activity Day" : ""));
+
+            if (specialDayLabel) {
+                actL.innerText = specialDayLabel;
+                actL.style.display = "inline-block";
+            } else {
+                actL.style.display = "none";
+            }
+
             var cp = null, pi = -1;
 
             for (var i = 0; i < activeSchedule.length; i++) {
@@ -168,12 +244,12 @@
 
             if (cp) {
                 var pn = cp.name, tl = "Time Left";
-                if (dt === "B" && pn === "Seminar") pn = "Club period";
+                if (!isFirstTwoDaysSchedule && dt === "B" && pn === "Seminar") pn = "Club period";
                 if (pn.indexOf("Period") > -1) pn += dt;
                 if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
                     var n = activeSchedule[pi + 1].name;
                     if (n.indexOf("Period") > -1) n = n.replace("Period ", "") + dt;
-                    else if (n === "Seminar") n = (dt === "B") ? "Club" : "Seminar";
+                    else if (n === "Seminar") n = (!isFirstTwoDaysSchedule && dt === "B") ? "Club" : "Seminar";
                     tl = "Until " + n;
                 }
                 var ep = cp.end.split(':'), rem = (parseInt(ep[0])*3600 + parseInt(ep[1])*60) - curr;
@@ -190,10 +266,10 @@
                 } else { m.innerText = "School out"; s.innerText = ""; t.innerText = ""; }
             }
             
-            if(isActivityMode) fitToWidth(actL, 0.40); 
-            fitToWidth(m, 0.92);
-            fitToWidth(s, 0.75);
-            fitToWidth(t, 0.75);
+            if(specialDayLabel) fitToWidth(actL, window.innerHeight > window.innerWidth ? 0.82 : 0.55); 
+            fitToWidth(m, window.innerHeight > window.innerWidth ? 0.84 : 0.92);
+            fitToWidth(s, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
+            fitToWidth(t, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
 
             var wrapper = document.getElementById("scaling-wrapper");
             var totalHeight = wrapper.offsetHeight;
