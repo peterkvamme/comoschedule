@@ -112,8 +112,23 @@
                 line-height: 1;
             }
 
+            #mainContainer {
+                min-height: 34vh;
+                align-items: center;
+                overflow: visible;
+            }
+
             #mainText {
-                line-height: 0.88;
+                line-height: 0.82;
+                transform-origin: center center;
+            }
+
+            /* Period labels are width-limited in a vertical zone. Stretching only
+               the period label vertically makes better use of the available height
+               without forcing it wider. This is a standard CSS transform and works
+               in Chromium-based Carousel web rendering. */
+            #mainText.period-name {
+                transform: scaleY(1.35);
             }
 
             #subText {
@@ -148,13 +163,13 @@
         var firstTwoDaysPeriods = [{name:"Seminar",start:"08:30",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 1",start:"10:35",end:"11:30"},{name:"Passing Time",start:"11:30",end:"11:35"},{name:"Period 3",start:"11:35",end:"13:00"},{name:"Passing Time",start:"13:00",end:"13:05"},{name:"Period 2",start:"13:05",end:"14:00"},{name:"Passing Time",start:"14:00",end:"14:05"},{name:"Period 4",start:"14:05",end:"15:00"}];
         var normalPeriods = [{name:"Period 1",start:"08:30",end:"09:50"},{name:"Passing Time",start:"09:50",end:"09:55"},{name:"Seminar",start:"09:55",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 2",start:"10:35",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
 
-        // SPECIAL-DAY DATE LISTS. Add dates using M/D format, for example "9/18".
-        var activityDays = [];
-        var firstDayOfSchoolDates = ["9/8"];
-        var secondDayOfSchoolDates = ["9/9"];
+        // SPECIAL-DAY DATE LISTS. Add dates using M/D/YYYY format, for example "9/18/2026".
+        var activityDays = ["12/22/2026", "2/2/2027", "4/2/2027", "4/30/2027"];
+        var firstDayOfSchoolDates = ["9/8/2026"];
+        var secondDayOfSchoolDates = ["9/9/2026"];
 
-        var aDays = ["9/8", "9/10", "9/14", "9/16", "9/18", "9/23", "9/25", "9/29", "10/1", "10/5", "10/7", "10/9", "10/13", "10/19", "10/21", "10/23", "10/27", "10/29", "11/2", "11/4", "11/6", "11/10", "11/12", "11/17", "11/19", "11/23", "11/25", "12/1", "12/3", "12/7", "12/9", "12/11", "12/15", "12/17", "12/21", "1/4", "1/6", "1/8", "1/12", "1/14", "1/19", "1/21", "1/25", "1/27", "2/1", "2/3", "2/5", "2/9", "2/11", "2/16", "2/18", "2/22", "2/24", "2/26", "3/2", "3/4", "3/8", "3/11", "3/15", "3/17", "3/19", "3/23", "3/25", "3/29", "3/31", "4/2", "4/13", "4/15", "4/19", "4/21", "4/23", "4/27", "4/29", "5/3", "5/5", "5/7", "5/11", "5/13", "5/18", "5/20", "5/24", "5/26", "5/28", "6/2", "6/4", "6/8", "6/10"];
-        var bDays = ["8/14", "9/9", "9/11", "9/15", "9/17", "9/22", "9/24", "9/28", "9/30", "10/2", "10/6", "10/8", "10/12", "10/14", "10/20", "10/22", "10/26", "10/28", "10/30", "11/3", "11/5", "11/9", "11/11", "11/16", "11/18", "11/20", "11/24", "11/30", "12/2", "12/4", "12/8", "12/10", "12/14", "12/16", "12/18", "12/22", "1/5", "1/7", "1/11", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28", "2/2", "2/4", "2/8", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "3/1", "3/3", "3/5", "3/9", "3/12", "3/16", "3/18", "3/22", "3/24", "3/26", "3/30", "4/1", "4/12", "4/14", "4/16", "4/20", "4/22", "4/26", "4/28", "4/30", "5/4", "5/6", "5/10", "5/12", "5/14", "5/19", "5/21", "5/25", "5/27", "6/1", "6/3", "6/7", "6/9", "6/11"];
+        var aDays = ["9/8/2026", "9/10/2026", "9/14/2026", "9/16/2026", "9/18/2026", "9/23/2026", "9/25/2026", "9/29/2026", "10/1/2026", "10/5/2026", "10/7/2026", "10/9/2026", "10/13/2026", "10/19/2026", "10/21/2026", "10/23/2026", "10/27/2026", "10/29/2026", "11/2/2026", "11/4/2026", "11/6/2026", "11/10/2026", "11/12/2026", "11/17/2026", "11/19/2026", "11/23/2026", "11/25/2026", "12/1/2026", "12/3/2026", "12/7/2026", "12/9/2026", "12/11/2026", "12/15/2026", "12/17/2026", "12/21/2026", "1/4/2027", "1/6/2027", "1/8/2027", "1/12/2027", "1/14/2027", "1/19/2027", "1/21/2027", "1/25/2027", "1/27/2027", "2/1/2027", "2/3/2027", "2/5/2027", "2/9/2027", "2/11/2027", "2/16/2027", "2/18/2027", "2/22/2027", "2/24/2027", "2/26/2027", "3/2/2027", "3/4/2027", "3/8/2027", "3/11/2027", "3/15/2027", "3/17/2027", "3/19/2027", "3/23/2027", "3/25/2027", "3/29/2027", "3/31/2027", "4/2/2027", "4/13/2027", "4/15/2027", "4/19/2027", "4/21/2027", "4/23/2027", "4/27/2027", "4/29/2027", "5/3/2027", "5/5/2027", "5/7/2027", "5/11/2027", "5/13/2027", "5/18/2027", "5/20/2027", "5/24/2027", "5/26/2027", "5/28/2027", "6/2/2027", "6/4/2027", "6/8/2027", "6/10/2027"];
+        var bDays = ["9/9/2026", "9/11/2026", "9/15/2026", "9/17/2026", "9/22/2026", "9/24/2026", "9/28/2026", "9/30/2026", "10/2/2026", "10/6/2026", "10/8/2026", "10/12/2026", "10/14/2026", "10/20/2026", "10/22/2026", "10/26/2026", "10/28/2026", "10/30/2026", "11/3/2026", "11/5/2026", "11/9/2026", "11/11/2026", "11/16/2026", "11/18/2026", "11/20/2026", "11/24/2026", "11/30/2026", "12/2/2026", "12/4/2026", "12/8/2026", "12/10/2026", "12/14/2026", "12/16/2026", "12/18/2026", "12/22/2026", "1/5/2027", "1/7/2027", "1/11/2027", "1/13/2027", "1/15/2027", "1/20/2027", "1/22/2027", "1/26/2027", "1/28/2027", "2/2/2027", "2/4/2027", "2/8/2027", "2/10/2027", "2/12/2027", "2/17/2027", "2/19/2027", "2/23/2027", "2/25/2027", "3/1/2027", "3/3/2027", "3/5/2027", "3/9/2027", "3/12/2027", "3/16/2027", "3/18/2027", "3/22/2027", "3/24/2027", "3/26/2027", "3/30/2027", "4/1/2027", "4/12/2027", "4/14/2027", "4/16/2027", "4/20/2027", "4/22/2027", "4/26/2027", "4/28/2027", "4/30/2027", "5/4/2027", "5/6/2027", "5/10/2027", "5/12/2027", "5/14/2027", "5/19/2027", "5/21/2027", "5/25/2027", "5/27/2027", "6/1/2027", "6/3/2027", "6/7/2027", "6/9/2027", "6/11/2027"];
 function fitToWidth(e, w) {
             if (!e || e.innerText === "" || e.innerHTML === "&nbsp;") return;
 
@@ -184,7 +199,7 @@ function fitToWidth(e, w) {
         function update() {
             var now = new Date();
             var curr = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            var d = (now.getMonth() + 1) + "/" + now.getDate();
+            var d = (now.getMonth() + 1) + "/" + now.getDate() + "/" + now.getFullYear();
             var dt = null;
             if (aDays.indexOf(d) > -1) dt = "A";
             else if (bDays.indexOf(d) > -1) dt = "B";
@@ -197,6 +212,7 @@ function fitToWidth(e, w) {
 
             if (!dt) {
                 actL.style.display = "none";
+                m.classList.remove("period-name");
                 m.innerText = "No School Today"; s.innerText = ""; t.innerText = "";
                 fitToWidth(m, window.innerHeight > window.innerWidth ? 0.88 : 0.92); return;
             }
@@ -227,7 +243,7 @@ function fitToWidth(e, w) {
 
             if (cp) {
                 var pn = cp.name, tl = "Time Left";
-                if (!isFirstTwoDaysSchedule && dt === "B" && pn === "Seminar") pn = "Club period";
+                if (!isFirstTwoDaysSchedule && dt === "B" && pn === "Seminar") pn = "Club";
                 if (pn.indexOf("Period") > -1) pn += dt;
                 if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
                     var n = activeSchedule[pi + 1].name;
@@ -249,8 +265,14 @@ function fitToWidth(e, w) {
                 } else { m.innerText = "School out"; s.innerText = ""; t.innerText = ""; }
             }
             
+            // In the narrow Carousel zone, vertically stretch numbered period
+            // labels so they use more of the available height. Seminar, Club,
+            // Passing Time, School out, etc. keep normal proportions.
+            var isNumberedPeriod = /^Period [1-4][AB]$/.test(m.innerText);
+            m.classList.toggle("period-name", isNumberedPeriod);
+
             if(specialDayLabel) fitToWidth(actL, window.innerHeight > window.innerWidth ? 0.82 : 0.55); 
-            fitToWidth(m, window.innerHeight > window.innerWidth ? 0.84 : 0.92);
+            fitToWidth(m, window.innerHeight > window.innerWidth ? 0.88 : 0.92);
             fitToWidth(s, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
             fitToWidth(t, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
 
