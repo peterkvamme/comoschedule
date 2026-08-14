@@ -74,31 +74,42 @@
         #timeText { font-weight: 500; margin-top: 1vh; }
 /* VERTICAL CAROUSEL OPTIMIZATION */
         @media (max-aspect-ratio: 3/4) {
+            body {
+                min-height: 100vh;
+                min-width: 100vw;
+            }
+
             #scaling-wrapper {
                 width: 100vw;
-                max-width: 100vw;
-                padding: 2vh 2vw;
+                height: 100vh;
+                padding: 5vh 5vw;
                 box-sizing: border-box;
+                justify-content: center;
             }
 
             #period-display {
                 width: 100%;
+                flex: 0 0 auto;
             }
 
             #mainContainer, #subContainer, #timeContainer {
                 width: 100%;
+                align-items: center;
             }
 
             .text-line {
-                max-width: 96vw;
+                max-width: 90vw;
                 white-space: normal;
-                overflow-wrap: anywhere;
+                overflow-wrap: normal;
+                word-break: normal;
                 line-height: 0.9;
             }
 
             #activityLabel {
-                margin-bottom: 2vh;
-                padding: 0.8vh 4vw;
+                max-width: 82vw;
+                margin-bottom: 4vh;
+                padding: 1.2vh 4vw;
+                line-height: 1;
             }
 
             #mainText {
@@ -106,21 +117,13 @@
             }
 
             #subText {
-                margin-top: 2.5vh;
-                line-height: 1;
-            }
-
-            #timeText {
-                margin-top: 0.8vh;
+                margin-top: 4vh;
                 line-height: 0.95;
             }
 
-            #toggleBtn {
-                width: 34px;
-                height: 24px;
-                bottom: 8px;
-                right: 8px;
-                opacity: 0.35;
+            #timeText {
+                margin-top: 1.5vh;
+                line-height: 0.9;
             }
         }
     </style>
@@ -150,20 +153,32 @@
         var firstDayOfSchoolDates = ["9/8"];
         var secondDayOfSchoolDates = ["9/9"];
 
-        var aDays = ["8/14", "9/8", "9/10", "9/14", "9/16", "9/18", "9/23", "9/25", "9/29", "10/1", "10/5", "10/7", "10/9", "10/13", "10/19", "10/21", "10/23", "10/27", "10/29", "11/2", "11/4", "11/6", "11/10", "11/12", "11/17", "11/19", "11/23", "11/25", "12/1", "12/3", "12/7", "12/9", "12/11", "12/15", "12/17", "12/21", "1/4", "1/6", "1/8", "1/12", "1/14", "1/19", "1/21", "1/25", "1/27", "2/1", "2/3", "2/5", "2/9", "2/11", "2/16", "2/18", "2/22", "2/24", "2/26", "3/2", "3/4", "3/8", "3/11", "3/15", "3/17", "3/19", "3/23", "3/25", "3/29", "3/31", "4/2", "4/13", "4/15", "4/19", "4/21", "4/23", "4/27", "4/29", "5/3", "5/5", "5/7", "5/11", "5/13", "5/18", "5/20", "5/24", "5/26", "5/28", "6/2", "6/4", "6/8", "6/10"];
+        var aDays = ["9/8", "9/10", "9/14", "9/16", "9/18", "9/23", "9/25", "9/29", "10/1", "10/5", "10/7", "10/9", "10/13", "10/19", "10/21", "10/23", "10/27", "10/29", "11/2", "11/4", "11/6", "11/10", "11/12", "11/17", "11/19", "11/23", "11/25", "12/1", "12/3", "12/7", "12/9", "12/11", "12/15", "12/17", "12/21", "1/4", "1/6", "1/8", "1/12", "1/14", "1/19", "1/21", "1/25", "1/27", "2/1", "2/3", "2/5", "2/9", "2/11", "2/16", "2/18", "2/22", "2/24", "2/26", "3/2", "3/4", "3/8", "3/11", "3/15", "3/17", "3/19", "3/23", "3/25", "3/29", "3/31", "4/2", "4/13", "4/15", "4/19", "4/21", "4/23", "4/27", "4/29", "5/3", "5/5", "5/7", "5/11", "5/13", "5/18", "5/20", "5/24", "5/26", "5/28", "6/2", "6/4", "6/8", "6/10"];
         var bDays = ["9/9", "9/11", "9/15", "9/17", "9/22", "9/24", "9/28", "9/30", "10/2", "10/6", "10/8", "10/12", "10/14", "10/20", "10/22", "10/26", "10/28", "10/30", "11/3", "11/5", "11/9", "11/11", "11/16", "11/18", "11/20", "11/24", "11/30", "12/2", "12/4", "12/8", "12/10", "12/14", "12/16", "12/18", "12/22", "1/5", "1/7", "1/11", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28", "2/2", "2/4", "2/8", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "3/1", "3/3", "3/5", "3/9", "3/12", "3/16", "3/18", "3/22", "3/24", "3/26", "3/30", "4/1", "4/12", "4/14", "4/16", "4/20", "4/22", "4/26", "4/28", "4/30", "5/4", "5/6", "5/10", "5/12", "5/14", "5/19", "5/21", "5/25", "5/27", "6/1", "6/3", "6/7", "6/9", "6/11"];
 function fitToWidth(e, w) {
             if (!e || e.innerText === "" || e.innerHTML === "&nbsp;") return;
-            var s = 10;
-            e.style.fontSize = s + "px";
-            var maxW = window.innerWidth * w;
-            if (window.innerHeight > window.innerWidth) maxW = window.innerWidth * Math.min(w, 0.86);
-            while (e.offsetWidth < maxW && s < 800) {
-                s += 2;
-                e.style.fontSize = s + "px";
+
+            var portrait = window.innerHeight > window.innerWidth;
+            var maxW = window.innerWidth * (portrait ? Math.min(w, 0.90) : w);
+            var maxH = portrait ? window.innerHeight * 0.30 : window.innerHeight * 0.40;
+            var low = 10, high = portrait ? 420 : 800, best = 10;
+
+            e.style.width = "auto";
+            e.style.maxWidth = maxW + "px";
+
+            while (low <= high) {
+                var mid = Math.floor((low + high) / 2);
+                e.style.fontSize = mid + "px";
+
+                if (e.scrollWidth <= maxW + 1 && e.scrollHeight <= maxH) {
+                    best = mid;
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
             }
-            s -= 4;
-            e.style.fontSize = s + "px";
+
+            e.style.fontSize = best + "px";
         }
 
         function update() {
@@ -183,14 +198,14 @@ function fitToWidth(e, w) {
             if (!dt) {
                 actL.style.display = "none";
                 m.innerText = "No School Today"; s.innerText = ""; t.innerText = "";
-                fitToWidth(m, 0.92); return;
+                fitToWidth(m, window.innerHeight > window.innerWidth ? 0.88 : 0.92); return;
             }
 
             var isFirstDay = firstDayOfSchoolDates.indexOf(d) > -1;
             var isSecondDay = secondDayOfSchoolDates.indexOf(d) > -1;
             var isAutomaticActivityDay = activityDays.indexOf(d) > -1;
             var isFirstTwoDaysSchedule = isFirstDay || isSecondDay;
-            var useActivitySchedule = !isFirstTwoDaysSchedule && (isAutomaticActivityDay || isActivityMode);
+            var useActivitySchedule = !isFirstTwoDaysSchedule && isAutomaticActivityDay;
 
             var activeSchedule = isFirstTwoDaysSchedule ? firstTwoDaysPeriods : (useActivitySchedule ? activityPeriods : normalPeriods);
             var specialDayLabel = isFirstDay ? "First day of school" : (isSecondDay ? "Second day of school" : (useActivitySchedule ? "Activity Day" : ""));
