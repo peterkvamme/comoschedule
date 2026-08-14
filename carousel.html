@@ -63,7 +63,7 @@
     display:flex;
     align-items:baseline;
     justify-content:center;
-    gap: clamp(6px, 1.25vw, 14px);
+    gap: clamp(14px, 2.4vw, 26px);
     white-space:nowrap;
     line-height:1;
   }
@@ -88,14 +88,17 @@
   .lunchBlock {
     width:100%;
     margin:.05vh 0 .3vh;
-    padding:.2vh 0 .25vh 2vw;
-    border-left:max(3px,.65vw) solid currentColor;
+    padding:.15vh 0 .25vh 7vw;
     display:flex;
     flex-direction:column;
-    gap:clamp(2px,.4vh,6px);
+    align-items:flex-start;
+    gap:clamp(2px,.35vh,5px);
   }
   .lunchRow {
-    font-size:28px;
+    width:auto;
+    justify-content:flex-start;
+    font-size:24px;
+    gap:clamp(12px, 2vw, 22px);
   }
   .lunchName { font-weight:900; }
   .lunchTime {
@@ -131,30 +134,30 @@ var aDays = ["9/8/2026", "9/10/2026", "9/14/2026", "9/16/2026", "9/18/2026", "9/
 var bDays = ["9/9/2026", "9/11/2026", "9/15/2026", "9/17/2026", "9/22/2026", "9/24/2026", "9/28/2026", "9/30/2026", "10/2/2026", "10/6/2026", "10/8/2026", "10/12/2026", "10/14/2026", "10/20/2026", "10/22/2026", "10/26/2026", "10/28/2026", "10/30/2026", "11/3/2026", "11/5/2026", "11/9/2026", "11/11/2026", "11/16/2026", "11/18/2026", "11/20/2026", "11/24/2026", "11/30/2026", "12/2/2026", "12/4/2026", "12/8/2026", "12/10/2026", "12/14/2026", "12/16/2026", "12/18/2026", "12/22/2026", "1/5/2027", "1/7/2027", "1/11/2027", "1/13/2027", "1/15/2027", "1/20/2027", "1/22/2027", "1/26/2027", "1/28/2027", "2/2/2027", "2/4/2027", "2/8/2027", "2/10/2027", "2/12/2027", "2/17/2027", "2/19/2027", "2/23/2027", "2/25/2027", "3/1/2027", "3/3/2027", "3/5/2027", "3/9/2027", "3/12/2027", "3/16/2027", "3/18/2027", "3/22/2027", "3/24/2027", "3/26/2027", "3/30/2027", "4/1/2027", "4/12/2027", "4/14/2027", "4/16/2027", "4/20/2027", "4/22/2027", "4/26/2027", "4/28/2027", "4/30/2027", "5/4/2027", "5/6/2027", "5/10/2027", "5/12/2027", "5/14/2027", "5/19/2027", "5/21/2027", "5/25/2027", "5/27/2027", "6/1/2027", "6/3/2027", "6/7/2027", "6/9/2027", "6/11/2027"];
 
 var normalSchedule = [
-  {name:"Period 1", time:"8:30 - 9:50"},
-  {name:"Seminar", time:"9:55 - 10:30", seminar:true},
-  {name:"Period 2", time:"10:35 - 11:50"},
-  {name:"Period 3", time:"11:55 - 1:40", lunches:true},
-  {name:"Period 4", time:"1:45 - 3:00"}
+  {name:"Period 1", time:"8:30-9:50"},
+  {name:"Seminar", time:"9:55-10:30", seminar:true},
+  {name:"Period 2", time:"10:35-11:50"},
+  {name:"Period 3", time:"11:55-1:40", lunches:true},
+  {name:"Period 4", time:"1:45-3:00"}
 ];
 var activitySchedule = [
-  {name:"Period 1", time:"8:30 - 9:30"},
-  {name:"Period 2", time:"9:35 - 10:35"},
-  {name:"Period 4", time:"10:40 - 11:50"},
-  {name:"Period 3", time:"11:55 - 1:40", lunches:true},
-  {name:"Seminar", time:"1:45 - 3:00", seminar:true}
+  {name:"Period 1", time:"8:30-9:30"},
+  {name:"Period 2", time:"9:35-10:35"},
+  {name:"Period 4", time:"10:40-11:50"},
+  {name:"Period 3", time:"11:55-1:40", lunches:true},
+  {name:"Seminar", time:"1:45-3:00", seminar:true}
 ];
 var firstTwoDaysSchedule = [
-  {name:"Seminar", time:"8:30 - 10:30", seminar:true},
-  {name:"Period 1", time:"10:35 - 11:30"},
-  {name:"Period 3", time:"11:35 - 1:00", lunches:true},
-  {name:"Period 2", time:"1:05 - 2:00"},
-  {name:"Period 4", time:"2:05 - 3:00"}
+  {name:"Seminar", time:"8:30-10:30", seminar:true},
+  {name:"Period 1", time:"10:35-11:30"},
+  {name:"Period 3", time:"11:35-1:00", lunches:true},
+  {name:"Period 2", time:"1:05-2:00"},
+  {name:"Period 4", time:"2:05-3:00"}
 ];
 var lunches = [
-  {name:"Lunch A", time:"11:55 - 12:20"},
-  {name:"Lunch B", time:"12:35 - 1:00"},
-  {name:"Lunch C", time:"1:15 - 1:40"}
+  {name:"Lunch A", time:"11:55-12:20"},
+  {name:"Lunch B", time:"12:35-1:00"},
+  {name:"Lunch C", time:"1:15-1:40"}
 ];
 
 
@@ -194,36 +197,55 @@ function fitScheduleRows() {
   var schedule = document.getElementById("schedule");
   if (!schedule || schedule.style.display === "none") return;
 
-  var rows = Array.prototype.slice.call(schedule.querySelectorAll(".row, .lunchRow"));
-  if (!rows.length) return;
+  var mainRows = Array.prototype.slice.call(schedule.querySelectorAll(".row"));
+  var lunchRows = Array.prototype.slice.call(schedule.querySelectorAll(".lunchRow"));
+  if (!mainRows.length) return;
 
+  // Find ONE font size that works for every main schedule row. The longest row
+  // determines the size, so Seminar, Club, and every numbered period match.
   var maxW = schedule.clientWidth * 0.99;
-  rows.forEach(function(row) {
-    var kids = row.children;
-    if (kids.length < 2) return;
-    var lo = 12, hi = 110, best = 12;
-    while (lo <= hi) {
-      var mid = Math.floor((lo + hi) / 2);
+  var lo = 12, hi = 110, best = 12;
+  while (lo <= hi) {
+    var mid = Math.floor((lo + hi) / 2);
+    var allFit = true;
+    mainRows.forEach(function(row) {
       row.style.fontSize = mid + "px";
-      var gap = parseFloat(getComputedStyle(row).columnGap || getComputedStyle(row).gap || "0") || 0;
+      var kids = row.children;
+      if (kids.length < 2) return;
+      var style = getComputedStyle(row);
+      var gap = parseFloat(style.columnGap || style.gap || "0") || 0;
       var needed = kids[0].scrollWidth + kids[1].scrollWidth + gap + 2;
-      if (needed <= maxW) {
-        best = mid;
-        lo = mid + 1;
-      } else {
-        hi = mid - 1;
-      }
+      if (needed > maxW) allFit = false;
+    });
+    if (allFit) {
+      best = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
     }
+  }
+
+  mainRows.forEach(function(row) {
     row.style.fontSize = best + "px";
   });
 
-  // Width is the primary constraint, but if a small Carousel zone is shorter,
-  // scale the rows down together until the complete schedule fits vertically.
+  // Lunch rows are intentionally subordinate but also all use one shared size.
+  var lunchSize = best * 0.80;
+  lunchRows.forEach(function(row) {
+    row.style.fontSize = lunchSize + "px";
+  });
+
+  // If the complete schedule is too tall for the Carousel zone, shrink every
+  // main row together and keep lunches at 80% so the hierarchy stays intact.
   var guard = 0;
-  while (schedule.scrollHeight > schedule.clientHeight && guard < 30) {
-    rows.forEach(function(row) {
-      var current = parseFloat(getComputedStyle(row).fontSize) || 12;
-      row.style.fontSize = Math.max(10, current * 0.95) + "px";
+  while (schedule.scrollHeight > schedule.clientHeight && guard < 40) {
+    best = Math.max(10, best * 0.95);
+    lunchSize = best * 0.80;
+    mainRows.forEach(function(row) {
+      row.style.fontSize = best + "px";
+    });
+    lunchRows.forEach(function(row) {
+      row.style.fontSize = lunchSize + "px";
     });
     guard++;
   }
