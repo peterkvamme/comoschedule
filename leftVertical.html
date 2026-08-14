@@ -123,17 +123,43 @@
                 transform-origin: center center;
             }
 
-            /* Period labels are width-limited in a vertical zone. Stretching only
-               the period label vertically makes better use of the available height
-               without forcing it wider. This is a standard CSS transform and works
-               in Chromium-based Carousel web rendering. */
+            /* Numbered periods use two deliberately sized lines in portrait mode:
+               a smaller "Period" label and a much larger period code (1A, 4B, etc.).
+               Seminar and Club continue to use the normal main-text sizing. */
             #mainText.period-name {
-                transform: scaleY(1.35);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                max-width: none !important;
+                min-height: 34vh;
+                line-height: 0.8;
+            }
+
+            #mainText.period-name .period-word {
+                display: block;
+                font-size: min(14vw, 8vh);
+                font-weight: 700;
+                line-height: 0.9;
+                white-space: nowrap;
+            }
+
+            #mainText.period-name .period-code {
+                display: block;
+                font-size: min(42vw, 25vh);
+                font-weight: 800;
+                line-height: 0.78;
+                white-space: nowrap;
+                transform: scaleY(1.12);
+                transform-origin: center center;
             }
 
             #subText {
                 margin-top: 4vh;
                 line-height: 0.95;
+                white-space: nowrap !important;
+                max-width: 94vw !important;
             }
 
             #timeText {
@@ -265,15 +291,20 @@ function fitToWidth(e, w) {
                 } else { m.innerText = "School out"; s.innerText = ""; t.innerText = ""; }
             }
             
-            // In the narrow Carousel zone, vertically stretch numbered period
-            // labels so they use more of the available height. Seminar, Club,
-            // Passing Time, School out, etc. keep normal proportions.
-            var isNumberedPeriod = /^Period [1-4][AB]$/.test(m.innerText);
-            m.classList.toggle("period-name", isNumberedPeriod);
+            // Numbered periods are split into two lines so the narrow vertical
+            // Carousel zone can devote much more height to the code (1A, 4B, etc.)
+            // while keeping the word "Period" smaller. Seminar/Club are unchanged.
+            var periodMatch = /^Period ([1-4][AB])$/.exec(m.innerText);
+            if (periodMatch) {
+                m.classList.add("period-name");
+                m.innerHTML = '<span class="period-word">Period</span><span class="period-code">' + periodMatch[1] + '</span>';
+            } else {
+                m.classList.remove("period-name");
+            }
 
             if(specialDayLabel) fitToWidth(actL, window.innerHeight > window.innerWidth ? 0.82 : 0.55); 
-            fitToWidth(m, window.innerHeight > window.innerWidth ? 0.88 : 0.92);
-            fitToWidth(s, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
+            if (!periodMatch) fitToWidth(m, window.innerHeight > window.innerWidth ? 0.88 : 0.92);
+            fitToWidth(s, window.innerHeight > window.innerWidth ? 0.90 : 0.82);
             fitToWidth(t, window.innerHeight > window.innerWidth ? 0.78 : 0.75);
 
             var wrapper = document.getElementById("scaling-wrapper");
