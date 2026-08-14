@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Como Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+            background-color: #f0f4f8;
+            box-sizing: border-box;
+        }
+
+        #scaling-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            text-align: center;
+            transition: transform 0.2s;
+            transform-origin: center center;
+        }
+
+        #period-display {
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mainContainer, #subContainer, #timeContainer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .text-line {
+            margin: 0; padding: 0;
+            line-height: 0.85;
+            white-space: nowrap;
+            display: inline-block;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+        
+        /* ACCESSIBLE WHITE PILL BOX */
+        #activityLabel { 
+            font-weight: 900; 
+            color: #FF3B30; 
+            background-color: white;
+            display: none; /* Controlled by secret button */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 3vh;
+            padding: 0.8vh 5vw;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        #mainText { font-weight: 700; }
+        #subText { font-weight: 500; margin-top: 4vh; }
+        #timeText { font-weight: 500; margin-top: 1vh; }
+
+        #toggleBtn {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            width: 50px;
+            height: 35px;
+            background: rgba(128, 128, 128, 0.08);
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 999;
+            -webkit-appearance: none;
+            outline: none;
+        }
+        
+        #toggleBtn:active {
+            background: rgba(128, 128, 128, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scaling-wrapper">
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <div id="activityLabel" class="text-line">Activity Day</div>
+        </div>
+        
+        <div id="period-display">
+            <div id="mainContainer"><p class="text-line" id="mainText">&nbsp;</p></div>
+            <div id="subContainer"><p class="text-line" id="subText"></p></div>
+            <div id="timeContainer"><p class="text-line" id="timeText"></p></div>
+        </div>
+    </div>
+
+    <button id="toggleBtn" onclick="toggleSchedule()"></button>
+    
+    <script>
+        var isActivityMode = false;
+
+        var activityPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Period 2",start:"09:35",end:"10:35"},{name:"Passing Time",start:"10:35",end:"10:40"},{name:"Period 4",start:"10:40",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Seminar",start:"13:45",end:"15:00"}];
+        var normalPeriods = [{name:"Period 1",start:"08:30",end:"09:50"},{name:"Passing Time",start:"09:50",end:"09:55"},{name:"Seminar",start:"09:55",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 2",start:"10:35",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
+
+        var aDays = ["9/2", "9/4", "9/8", "9/10", "9/12", "9/16", "9/18", "9/22", "9/25", "9/29", "10/1", "10/6", "10/8", "10/10", "10/14", "10/20", "10/22", "10/24", "10/28", "10/30", "11/3", "11/5", "11/10", "11/12", "11/14", "11/18", "11/20", "11/24", "11/26", "12/2", "12/4", "12/8", "12/10", "12/12", "12/16", "12/18", "1/5", "1/7", "1/9", "1/13", "1/15", "1/20", "1/22", "1/26", "1/28", "2/2", "2/4", "2/6", "2/10", "2/12", "2/17", "2/19", "2/23", "2/25", "2/27", "3/3", "3/5", "3/9", "3/11", "3/13", "3/17", "3/19", "3/24", "3/26", "3/30", "4/1", "4/3", "4/14", "4/16", "4/20", "4/22", "4/24", "4/28", "4/30", "5/4", "5/6", "5/8", "5/12", "5/14", "5/18", "5/20", "5/22", "5/29", "6/2", "6/4", "6/8", "6/10"];
+        var bDays = ["9/3", "9/5", "9/9", "9/11", "9/15", "9/17", "9/19", "9/24", "9/26", "9/30", "10/3", "10/7", "10/9", "10/13", "10/15", "10/21", "10/23", "10/27", "10/29", "10/31", "11/4", "11/6", "11/11", "11/13", "11/17", "11/19", "11/21", "11/25", "11/27", "12/1", "12/3", "12/5", "12/9", "12/11", "12/15", "12/17", "12/19", "1/6", "1/8", "1/12", "1/14", "1/16", "1/21", "1/23", "1/27", "1/29", "2/3", "2/5", "2/9", "2/11", "2/13", "2/18", "2/20", "2/24", "2/26", "3/2", "3/4", "3/6", "3/10", "3/12", "3/16", "3/18", "3/23", "3/25", "3/27", "3/31", "4/2", "4/13", "4/15", "4/17", "4/21", "4/23", "4/27", "4/29", "5/1", "5/5", "5/7", "5/11", "5/13", "5/15", "5/19", "5/21", "5/28", "6/1", "6/3", "6/5", "6/9", "6/11"];
+
+        function toggleSchedule() {
+            isActivityMode = !isActivityMode;
+            var label = document.getElementById("activityLabel");
+            label.style.display = isActivityMode ? "inline-block" : "none";
+            update();
+        }
+
+        function fitToWidth(e, w) {
+            if (!e || e.innerText === "" || e.innerHTML === "&nbsp;") return;
+            var s = 10;
+            e.style.fontSize = s + "px";
+            var maxW = window.innerWidth * w;
+            while (e.offsetWidth < maxW && s < 800) {
+                s += 2;
+                e.style.fontSize = s + "px";
+            }
+            s -= 4;
+            e.style.fontSize = s + "px";
+        }
+
+        function update() {
+            var now = new Date();
+            var curr = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            var d = (now.getMonth() + 1) + "/" + now.getDate();
+            var dt = null;
+            if (aDays.indexOf(d) > -1) dt = "A";
+            else if (bDays.indexOf(d) > -1) dt = "B";
+
+            document.body.style.backgroundColor = (dt === "A" ? "#FFD700" : (dt === "B" ? "black" : "#f0f4f8"));
+            document.body.style.color = (dt === "A" ? "black" : (dt === "B" ? "white" : "#1a202c"));
+
+            var m = document.getElementById("mainText"), s = document.getElementById("subText"), t = document.getElementById("timeText");
+            var actL = document.getElementById("activityLabel");
+
+            if (!dt) {
+                m.innerText = "No School Today"; s.innerText = ""; t.innerText = "";
+                fitToWidth(m, 0.92); return;
+            }
+
+            var activeSchedule = isActivityMode ? activityPeriods : normalPeriods;
+            var cp = null, pi = -1;
+
+            for (var i = 0; i < activeSchedule.length; i++) {
+                var p = activeSchedule[i], st = p.start.split(':'), en = p.end.split(':');
+                var sS = parseInt(st[0])*3600 + parseInt(st[1])*60, eS = parseInt(en[0])*3600 + parseInt(en[1])*60;
+                if (curr >= sS && curr < eS) { cp = p; pi = i; break; }
+            }
+
+            if (cp) {
+                var pn = cp.name, tl = "Time Left";
+                if (dt === "B" && pn === "Seminar") pn = "Club period";
+                if (pn.indexOf("Period") > -1) pn += dt;
+                if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
+                    var n = activeSchedule[pi + 1].name;
+                    if (n.indexOf("Period") > -1) n = n.replace("Period ", "") + dt;
+                    else if (n === "Seminar") n = (dt === "B") ? "Club" : "Seminar";
+                    tl = "Until " + n;
+                }
+                var ep = cp.end.split(':'), rem = (parseInt(ep[0])*3600 + parseInt(ep[1])*60) - curr;
+                var min = Math.floor(rem/60), sec = rem % 60;
+                m.innerText = pn; s.innerText = tl;
+                t.innerText = (min < 10 ? "0"+min : min) + ":" + (sec < 10 ? "0"+sec : sec);
+            } else {
+                var f = activeSchedule[0].start.split(':'), sS = parseInt(f[0])*3600 + parseInt(f[1])*60;
+                if (curr < sS) {
+                    m.innerText = dt + " Day"; s.innerText = "Starts In";
+                    var df = sS - curr;
+                    var m2 = Math.floor(df/60), s2 = df % 60;
+                    t.innerText = (m2 < 10 ? "0"+m2 : m2) + ":" + (s2 < 10 ? "0"+s2 : s2);
+                } else { m.innerText = "School out"; s.innerText = ""; t.innerText = ""; }
+            }
+            
+            if(isActivityMode) fitToWidth(actL, 0.40); 
+            fitToWidth(m, 0.92);
+            fitToWidth(s, 0.75);
+            fitToWidth(t, 0.75);
+
+            var wrapper = document.getElementById("scaling-wrapper");
+            var totalHeight = wrapper.offsetHeight;
+            var maxHeight = window.innerHeight * 0.92;
+            
+            if (totalHeight > maxHeight) {
+                var ratio = maxHeight / totalHeight;
+                wrapper.style.transform = "scale(" + ratio + ")";
+            } else {
+                wrapper.style.transform = "scale(1)";
+            }
+        }
+
+        window.onload = function() {
+            update();
+            setInterval(update, 1000);
+        };
+    </script>
+</body>
+</html>
