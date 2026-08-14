@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Como Carousel Schedule</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin:0; width:100%; height:100%; overflow:hidden; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f0f4f8;
+    color:#111827;
+  }
+  #page {
+    width:100vw;
+    height:100vh;
+    padding: 3.2vh 5vw 3vh;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+  }
+  #dayTitle {
+    width:100%;
+    text-align:center;
+    font-weight:900;
+    white-space:nowrap;
+    line-height:.88;
+    margin:0;
+    letter-spacing:-0.04em;
+  }
+  #specialLabel {
+    display:none;
+    align-self:center;
+    max-width:92%;
+    margin: 1.8vh auto 1.4vh;
+    padding: .8vh 3.5vw;
+    border-radius:999px;
+    background:#fff;
+    color:#ff3b30;
+    box-shadow:0 3px 8px rgba(0,0,0,.16);
+    font-weight:900;
+    text-transform:uppercase;
+    text-align:center;
+    white-space:nowrap;
+    line-height:1;
+    font-size:clamp(14px, 4.5vw, 30px);
+  }
+  #schedule {
+    width:100%;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap: clamp(4px, .85vh, 14px);
+  }
+  .row {
+    display:grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3vw;
+    align-items:baseline;
+    width:100%;
+    padding:.25vh 0;
+  }
+  .name {
+    min-width:0;
+    font-size:clamp(18px, 5.5vw, 40px);
+    font-weight:800;
+    line-height:1;
+    white-space:nowrap;
+  }
+  .time {
+    font-size:clamp(16px, 4.4vw, 32px);
+    font-weight:700;
+    line-height:1;
+    white-space:nowrap;
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+  .lunchBlock {
+    margin: -.1vh 0 .35vh 4vw;
+    padding: .65vh 2.2vw .65vh 3vw;
+    border-left: max(3px, .7vw) solid currentColor;
+    opacity:.96;
+  }
+  .lunchRow {
+    display:grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap:2vw;
+    align-items:baseline;
+    margin:.45vh 0;
+  }
+  .lunchName {
+    font-size:clamp(14px, 3.9vw, 27px);
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .lunchTime {
+    font-size:clamp(13px, 3.6vw, 25px);
+    font-weight:700;
+    white-space:nowrap;
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+  #noSchool {
+    display:none;
+    flex:1;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:clamp(42px, 13vw, 110px);
+    line-height:.95;
+    font-weight:900;
+  }
+  @media (min-aspect-ratio: 3/4) {
+    #page { padding: 4vh 5vw; }
+    .name { font-size:clamp(22px, 4.1vw, 48px); }
+    .time { font-size:clamp(18px, 3.2vw, 38px); }
+    .lunchName { font-size:clamp(16px, 2.8vw, 31px); }
+    .lunchTime { font-size:clamp(15px, 2.5vw, 28px); }
+  }
+
+  #testToggle {
+    position:fixed; right:8px; bottom:8px; z-index:1000;
+    border:2px solid #fff; outline:2px solid #2563eb;
+    border-radius:9px; padding:7px 11px;
+    background:#8b7b3a; color:#fff;
+    font:800 13px Arial, sans-serif; cursor:pointer;
+  }
+  #testPanel {
+    display:none; position:fixed; right:8px; bottom:52px; z-index:1001;
+    width:min(300px, calc(100vw - 16px));
+    padding:10px; border-radius:10px; background:#fff; color:#111827;
+    box-shadow:0 4px 18px rgba(0,0,0,.35); font:12px Arial, sans-serif;
+  }
+  #testPanel.open { display:block; }
+  #testPanel strong { display:block; margin-bottom:7px; }
+  #testPanel label { display:block; margin-top:7px; font-size:10px; font-weight:700; }
+  #testPanel input { width:100%; margin-top:2px; padding:6px; font:12px Arial, sans-serif; }
+  #testButtons { display:flex; gap:6px; margin-top:8px; }
+  #testButtons button { flex:1; padding:7px 5px; border:0; border-radius:6px; font-weight:700; cursor:pointer; }
+  #applyTest { background:#111827; color:white; }
+  #useLive { background:#dbe3ee; color:#111827; }
+  #testStatus { margin-top:6px; font-size:10px; font-weight:800; }
+
+</style>
+</head>
+<body>
+<div id="page">
+  <div id="dayTitle"></div>
+  <div id="specialLabel"></div>
+  <div id="schedule"></div>
+  <div id="noSchool">NO SCHOOL<br>TODAY</div>
+</div>
+
+<button id="testToggle" type="button">TEST</button>
+<div id="testPanel" aria-hidden="true">
+  <strong>Test date/time</strong>
+  <label>Date<input id="testDate" type="date"></label>
+  <label>Time<input id="testTime" type="time" step="60"></label>
+  <div id="testButtons">
+    <button id="applyTest" type="button">Use Test</button>
+    <button id="useLive" type="button">Use Live</button>
+  </div>
+  <div id="testStatus">LIVE</div>
+</div>
+
+<script>
+var activityDays = ["12/22/2026", "2/2/2027", "4/2/2027", "4/30/2027"];
+var firstDayOfSchoolDates = ["9/8/2026"];
+var secondDayOfSchoolDates = ["9/9/2026"];
+var aDays = ["9/8/2026", "9/10/2026", "9/14/2026", "9/16/2026", "9/18/2026", "9/23/2026", "9/25/2026", "9/29/2026", "10/1/2026", "10/5/2026", "10/7/2026", "10/9/2026", "10/13/2026", "10/19/2026", "10/21/2026", "10/23/2026", "10/27/2026", "10/29/2026", "11/2/2026", "11/4/2026", "11/6/2026", "11/10/2026", "11/12/2026", "11/17/2026", "11/19/2026", "11/23/2026", "11/25/2026", "12/1/2026", "12/3/2026", "12/7/2026", "12/9/2026", "12/11/2026", "12/15/2026", "12/17/2026", "12/21/2026", "1/4/2027", "1/6/2027", "1/8/2027", "1/12/2027", "1/14/2027", "1/19/2027", "1/21/2027", "1/25/2027", "1/27/2027", "2/1/2027", "2/3/2027", "2/5/2027", "2/9/2027", "2/11/2027", "2/16/2027", "2/18/2027", "2/22/2027", "2/24/2027", "2/26/2027", "3/2/2027", "3/4/2027", "3/8/2027", "3/11/2027", "3/15/2027", "3/17/2027", "3/19/2027", "3/23/2027", "3/25/2027", "3/29/2027", "3/31/2027", "4/2/2027", "4/13/2027", "4/15/2027", "4/19/2027", "4/21/2027", "4/23/2027", "4/27/2027", "4/29/2027", "5/3/2027", "5/5/2027", "5/7/2027", "5/11/2027", "5/13/2027", "5/18/2027", "5/20/2027", "5/24/2027", "5/26/2027", "5/28/2027", "6/2/2027", "6/4/2027", "6/8/2027", "6/10/2027"];
+var bDays = ["9/9/2026", "9/11/2026", "9/15/2026", "9/17/2026", "9/22/2026", "9/24/2026", "9/28/2026", "9/30/2026", "10/2/2026", "10/6/2026", "10/8/2026", "10/12/2026", "10/14/2026", "10/20/2026", "10/22/2026", "10/26/2026", "10/28/2026", "10/30/2026", "11/3/2026", "11/5/2026", "11/9/2026", "11/11/2026", "11/16/2026", "11/18/2026", "11/20/2026", "11/24/2026", "11/30/2026", "12/2/2026", "12/4/2026", "12/8/2026", "12/10/2026", "12/14/2026", "12/16/2026", "12/18/2026", "12/22/2026", "1/5/2027", "1/7/2027", "1/11/2027", "1/13/2027", "1/15/2027", "1/20/2027", "1/22/2027", "1/26/2027", "1/28/2027", "2/2/2027", "2/4/2027", "2/8/2027", "2/10/2027", "2/12/2027", "2/17/2027", "2/19/2027", "2/23/2027", "2/25/2027", "3/1/2027", "3/3/2027", "3/5/2027", "3/9/2027", "3/12/2027", "3/16/2027", "3/18/2027", "3/22/2027", "3/24/2027", "3/26/2027", "3/30/2027", "4/1/2027", "4/12/2027", "4/14/2027", "4/16/2027", "4/20/2027", "4/22/2027", "4/26/2027", "4/28/2027", "4/30/2027", "5/4/2027", "5/6/2027", "5/10/2027", "5/12/2027", "5/14/2027", "5/19/2027", "5/21/2027", "5/25/2027", "5/27/2027", "6/1/2027", "6/3/2027", "6/7/2027", "6/9/2027", "6/11/2027"];
+
+var normalSchedule = [
+  {name:"Period 1", time:"8:30 - 9:50"},
+  {name:"Seminar", time:"9:55 - 10:30", seminar:true},
+  {name:"Period 2", time:"10:35 - 11:50"},
+  {name:"Period 3", time:"11:55 - 1:40", lunches:true},
+  {name:"Period 4", time:"1:45 - 3:00"}
+];
+var activitySchedule = [
+  {name:"Period 1", time:"8:30 - 9:30"},
+  {name:"Period 2", time:"9:35 - 10:35"},
+  {name:"Period 4", time:"10:40 - 11:50"},
+  {name:"Period 3", time:"11:55 - 1:40", lunches:true},
+  {name:"Seminar", time:"1:45 - 3:00", seminar:true}
+];
+var firstTwoDaysSchedule = [
+  {name:"Seminar", time:"8:30 - 10:30", seminar:true},
+  {name:"Period 1", time:"10:35 - 11:30"},
+  {name:"Period 3", time:"11:35 - 1:00"},
+  {name:"Period 2", time:"1:05 - 2:00"},
+  {name:"Period 4", time:"2:05 - 3:00"}
+];
+var lunches = [
+  {name:"Lunch A", time:"11:55 - 12:20"},
+  {name:"Lunch B", time:"12:35 - 1:00"},
+  {name:"Lunch C", time:"1:15 - 1:40"}
+];
+
+
+var testDateTime = null;
+function pad2(n) { return String(n).padStart(2,"0"); }
+function dateInputValue(d) { return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function timeInputValue(d) { return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
+
+function getDisplayDate() { return new Date(); }
+
+function getDisplayDate() { return testDateTime ? new Date(testDateTime.getTime()) : new Date(); }
+
+
+function dateKey(d) {
+  return (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear();
+}
+
+function getDayType(key) {
+  if (aDays.indexOf(key) !== -1) return "A";
+  if (bDays.indexOf(key) !== -1) return "B";
+  return null;
+}
+
+function fitSingleLine(el, maxWidthRatio, maxHeightRatio) {
+  if (!el || !el.textContent) return;
+  var maxW = window.innerWidth * maxWidthRatio;
+  var maxH = window.innerHeight * maxHeightRatio;
+  var lo = 12, hi = 500, best = 12;
+  el.style.fontSize = lo + "px";
+  while (lo <= hi) {
+    var mid = Math.floor((lo+hi)/2);
+    el.style.fontSize = mid + "px";
+    if (el.scrollWidth <= maxW && el.scrollHeight <= maxH) {
+      best = mid; lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  el.style.fontSize = best + "px";
+}
+
+function makeRow(item, dayType, firstTwo) {
+  var row = document.createElement("div");
+  row.className = "row";
+  var name = document.createElement("div");
+  name.className = "name";
+  var displayName = item.name;
+  if (item.seminar && dayType === "B" && !firstTwo) displayName = "Club";
+  name.textContent = displayName;
+  var time = document.createElement("div");
+  time.className = "time";
+  time.textContent = item.time;
+  row.appendChild(name);
+  row.appendChild(time);
+  return row;
+}
+
+function makeLunchBlock() {
+  var block = document.createElement("div");
+  block.className = "lunchBlock";
+  lunches.forEach(function(l) {
+    var r = document.createElement("div");
+    r.className = "lunchRow";
+    var n = document.createElement("div");
+    n.className = "lunchName";
+    n.textContent = l.name;
+    var t = document.createElement("div");
+    t.className = "lunchTime";
+    t.textContent = l.time;
+    r.appendChild(n); r.appendChild(t); block.appendChild(r);
+  });
+  return block;
+}
+
+function render() {
+  var d = getDisplayDate();
+  var key = dateKey(d);
+  var dayType = getDayType(key);
+  var dayTitle = document.getElementById("dayTitle");
+  var specialLabel = document.getElementById("specialLabel");
+  var scheduleEl = document.getElementById("schedule");
+  var noSchool = document.getElementById("noSchool");
+  scheduleEl.innerHTML = "";
+
+  if (!dayType) {
+    document.body.style.background = "#f0f4f8";
+    document.body.style.color = "#111827";
+    dayTitle.style.display = "none";
+    specialLabel.style.display = "none";
+    scheduleEl.style.display = "none";
+    noSchool.style.display = "flex";
+    return;
+  }
+
+  var isFirst = firstDayOfSchoolDates.indexOf(key) !== -1;
+  var isSecond = secondDayOfSchoolDates.indexOf(key) !== -1;
+  var isFirstTwo = isFirst || isSecond;
+  var isActivity = !isFirstTwo && activityDays.indexOf(key) !== -1;
+  var special = isFirst ? "First day of school" : (isSecond ? "Second day of school" : (isActivity ? "Activity Day" : ""));
+  var schedule = isFirstTwo ? firstTwoDaysSchedule : (isActivity ? activitySchedule : normalSchedule);
+
+  document.body.style.background = dayType === "A" ? "#FFD700" : "#000";
+  document.body.style.color = dayType === "A" ? "#000" : "#fff";
+  noSchool.style.display = "none";
+  scheduleEl.style.display = "flex";
+  dayTitle.style.display = "block";
+  dayTitle.textContent = dayType + " DAY";
+
+  if (special) {
+    specialLabel.textContent = special;
+    specialLabel.style.display = "block";
+  } else {
+    specialLabel.style.display = "none";
+  }
+
+  schedule.forEach(function(item) {
+    scheduleEl.appendChild(makeRow(item, dayType, isFirstTwo));
+    if (item.lunches) scheduleEl.appendChild(makeLunchBlock());
+  });
+
+  requestAnimationFrame(function() {
+    fitSingleLine(dayTitle, .92, .17);
+  });
+}
+
+window.addEventListener("resize", render);
+window.addEventListener("load", function() {
+  
+  var live = new Date();
+  document.getElementById("testDate").value = dateInputValue(live);
+  document.getElementById("testTime").value = timeInputValue(live);
+  var toggle = document.getElementById("testToggle");
+  var panel = document.getElementById("testPanel");
+  toggle.addEventListener("click", function(){
+    panel.classList.toggle("open");
+    panel.setAttribute("aria-hidden", panel.classList.contains("open") ? "false" : "true");
+  });
+  document.getElementById("applyTest").addEventListener("click", function(){
+    var dv = document.getElementById("testDate").value;
+    var tv = document.getElementById("testTime").value || "00:00";
+    if (!dv) return;
+    var dp = dv.split("-").map(Number), tp = tv.split(":").map(Number);
+    testDateTime = new Date(dp[0], dp[1]-1, dp[2], tp[0]||0, tp[1]||0, 0, 0);
+    document.getElementById("testStatus").textContent = "TESTING: "+dateKey(testDateTime)+" "+timeInputValue(testDateTime);
+    render();
+  });
+  document.getElementById("useLive").addEventListener("click", function(){
+    testDateTime = null;
+    var now = new Date();
+    document.getElementById("testDate").value = dateInputValue(now);
+    document.getElementById("testTime").value = timeInputValue(now);
+    document.getElementById("testStatus").textContent = "LIVE";
+    render();
+  });
+
+  render();
+});
+</script>
+</body>
+</html>
