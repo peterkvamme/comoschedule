@@ -22,13 +22,15 @@
     justify-content:flex-start;
   }
   #dayTitle {
-    width:100%;
+    width:calc(100% + 6vw);
+    margin-left:-3vw;
     text-align:center;
     font-weight:900;
     white-space:nowrap;
-    line-height:.88;
-    margin:0;
-    letter-spacing:-0.04em;
+    line-height:.86;
+    margin-top:0;
+    margin-bottom:0;
+    letter-spacing:-0.055em;
   }
   #specialLabel {
     display:none;
@@ -62,13 +64,13 @@
     width:100%;
     display:flex;
     align-items:baseline;
-    justify-content:center;
+    justify-content:flex-start;
     gap: clamp(14px, 2.4vw, 26px);
     white-space:nowrap;
     line-height:1;
   }
   .row {
-    padding:.12vh 0;
+    padding:.12vh 2.5vw;
     font-size:32px;
   }
   .name,
@@ -88,7 +90,7 @@
   .lunchBlock {
     width:100%;
     margin:.05vh 0 .3vh;
-    padding:.15vh 0 .25vh 7vw;
+    padding:.15vh 0 .25vh 9vw;
     display:flex;
     flex-direction:column;
     align-items:flex-start;
@@ -335,7 +337,7 @@ function render() {
   });
 
   requestAnimationFrame(function() {
-    fitSingleLine(dayTitle, .94, .17);
+    fitSingleLine(dayTitle, .985, .21);
     fitScheduleRows();
   });
 }
