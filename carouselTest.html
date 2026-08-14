@@ -15,7 +15,7 @@
   #page {
     width:100vw;
     height:100vh;
-    padding: 3.2vh 5vw 3vh;
+    padding: 2.4vh 4vw 2.4vh;
     display:flex;
     flex-direction:column;
     align-items:stretch;
@@ -33,9 +33,9 @@
   #specialLabel {
     display:none;
     align-self:center;
-    max-width:92%;
-    margin: 1.8vh auto 1.4vh;
-    padding: .8vh 3.5vw;
+    max-width:94%;
+    margin: 1.1vh auto 1vh;
+    padding: .7vh 3.2vw;
     border-radius:999px;
     background:#fff;
     color:#ff3b30;
@@ -45,7 +45,7 @@
     text-align:center;
     white-space:nowrap;
     line-height:1;
-    font-size:clamp(14px, 4.5vw, 30px);
+    font-size:clamp(14px, 4.6vw, 32px);
   }
   #schedule {
     width:100%;
@@ -54,55 +54,53 @@
     display:flex;
     flex-direction:column;
     justify-content:center;
-    gap: clamp(4px, .85vh, 14px);
+    gap: clamp(3px, .7vh, 10px);
+    overflow:hidden;
+  }
+  .row,
+  .lunchRow {
+    width:100%;
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    gap: clamp(6px, 1.25vw, 14px);
+    white-space:nowrap;
+    line-height:1;
   }
   .row {
-    display:grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 3vw;
-    align-items:baseline;
-    width:100%;
-    padding:.25vh 0;
+    padding:.12vh 0;
+    font-size:32px;
   }
-  .name {
+  .name,
+  .time,
+  .lunchName,
+  .lunchTime {
+    flex:0 0 auto;
     min-width:0;
-    font-size:clamp(18px, 5.5vw, 40px);
-    font-weight:800;
-    line-height:1;
+    font-size:1em;
     white-space:nowrap;
   }
+  .name { font-weight:900; }
   .time {
-    font-size:clamp(16px, 4.4vw, 32px);
-    font-weight:700;
-    line-height:1;
-    white-space:nowrap;
-    text-align:right;
-    font-variant-numeric: tabular-nums;
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
   }
   .lunchBlock {
-    margin: -.1vh 0 .35vh 4vw;
-    padding: .65vh 2.2vw .65vh 3vw;
-    border-left: max(3px, .7vw) solid currentColor;
-    opacity:.96;
+    width:100%;
+    margin:.05vh 0 .3vh;
+    padding:.2vh 0 .25vh 2vw;
+    border-left:max(3px,.65vw) solid currentColor;
+    display:flex;
+    flex-direction:column;
+    gap:clamp(2px,.4vh,6px);
   }
   .lunchRow {
-    display:grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap:2vw;
-    align-items:baseline;
-    margin:.45vh 0;
+    font-size:28px;
   }
-  .lunchName {
-    font-size:clamp(14px, 3.9vw, 27px);
-    font-weight:800;
-    white-space:nowrap;
-  }
+  .lunchName { font-weight:900; }
   .lunchTime {
-    font-size:clamp(13px, 3.6vw, 25px);
-    font-weight:700;
-    white-space:nowrap;
-    text-align:right;
-    font-variant-numeric: tabular-nums;
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
   }
   #noSchool {
     display:none;
@@ -110,16 +108,9 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    font-size:clamp(42px, 13vw, 110px);
+    font-size:clamp(42px,13vw,110px);
     line-height:.95;
     font-weight:900;
-  }
-  @media (min-aspect-ratio: 3/4) {
-    #page { padding: 4vh 5vw; }
-    .name { font-size:clamp(22px, 4.1vw, 48px); }
-    .time { font-size:clamp(18px, 3.2vw, 38px); }
-    .lunchName { font-size:clamp(16px, 2.8vw, 31px); }
-    .lunchTime { font-size:clamp(15px, 2.5vw, 28px); }
   }
 
   #testToggle {
@@ -144,6 +135,7 @@
   #applyTest { background:#111827; color:white; }
   #useLive { background:#dbe3ee; color:#111827; }
   #testStatus { margin-top:6px; font-size:10px; font-weight:800; }
+
 
 </style>
 </head>
@@ -191,7 +183,7 @@ var activitySchedule = [
 var firstTwoDaysSchedule = [
   {name:"Seminar", time:"8:30 - 10:30", seminar:true},
   {name:"Period 1", time:"10:35 - 11:30"},
-  {name:"Period 3", time:"11:35 - 1:00"},
+  {name:"Period 3", time:"11:35 - 1:00", lunches:true},
   {name:"Period 2", time:"1:05 - 2:00"},
   {name:"Period 4", time:"2:05 - 3:00"}
 ];
@@ -206,8 +198,6 @@ var testDateTime = null;
 function pad2(n) { return String(n).padStart(2,"0"); }
 function dateInputValue(d) { return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
 function timeInputValue(d) { return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
-
-function getDisplayDate() { return new Date(); }
 
 function getDisplayDate() { return testDateTime ? new Date(testDateTime.getTime()) : new Date(); }
 
@@ -240,13 +230,57 @@ function fitSingleLine(el, maxWidthRatio, maxHeightRatio) {
   el.style.fontSize = best + "px";
 }
 
+
+function fitScheduleRows() {
+  var schedule = document.getElementById("schedule");
+  if (!schedule || schedule.style.display === "none") return;
+
+  var rows = Array.prototype.slice.call(schedule.querySelectorAll(".row, .lunchRow"));
+  if (!rows.length) return;
+
+  var maxW = schedule.clientWidth * 0.99;
+  rows.forEach(function(row) {
+    var kids = row.children;
+    if (kids.length < 2) return;
+    var lo = 12, hi = 110, best = 12;
+    while (lo <= hi) {
+      var mid = Math.floor((lo + hi) / 2);
+      row.style.fontSize = mid + "px";
+      var gap = parseFloat(getComputedStyle(row).columnGap || getComputedStyle(row).gap || "0") || 0;
+      var needed = kids[0].scrollWidth + kids[1].scrollWidth + gap + 2;
+      if (needed <= maxW) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    row.style.fontSize = best + "px";
+  });
+
+  // Width is the primary constraint, but if a small Carousel zone is shorter,
+  // scale the rows down together until the complete schedule fits vertically.
+  var guard = 0;
+  while (schedule.scrollHeight > schedule.clientHeight && guard < 30) {
+    rows.forEach(function(row) {
+      var current = parseFloat(getComputedStyle(row).fontSize) || 12;
+      row.style.fontSize = Math.max(10, current * 0.95) + "px";
+    });
+    guard++;
+  }
+}
+
 function makeRow(item, dayType, firstTwo) {
   var row = document.createElement("div");
   row.className = "row";
   var name = document.createElement("div");
   name.className = "name";
   var displayName = item.name;
-  if (item.seminar && dayType === "B" && !firstTwo) displayName = "Club";
+  if (item.seminar && dayType === "B" && !firstTwo) {
+    displayName = "Club";
+  } else if (/^Period\s+\d+$/i.test(displayName)) {
+    displayName += dayType;
+  }
   name.textContent = displayName;
   var time = document.createElement("div");
   time.className = "time";
@@ -320,7 +354,8 @@ function render() {
   });
 
   requestAnimationFrame(function() {
-    fitSingleLine(dayTitle, .92, .17);
+    fitSingleLine(dayTitle, .94, .17);
+    fitScheduleRows();
   });
 }
 
