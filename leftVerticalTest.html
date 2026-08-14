@@ -141,9 +141,87 @@
                 line-height: 0.9;
             }
         }
+
+
+        /* TEST CONTROLS - only in leftVerticalTest.html */
+        #testToggle {
+            position: fixed;
+            right: 8px;
+            bottom: 8px;
+            z-index: 10001;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(80,80,80,0.55);
+            color: white;
+            font: 700 11px/1 'Inter', sans-serif;
+            padding: 7px 9px;
+            border-radius: 7px;
+            cursor: pointer;
+            opacity: 0.55;
+        }
+
+        #testToggle:hover, #testToggle:focus { opacity: 1; }
+
+        #testPanel {
+            position: fixed;
+            right: 8px;
+            bottom: 42px;
+            z-index: 10002;
+            display: none;
+            width: min(300px, calc(100vw - 16px));
+            box-sizing: border-box;
+            background: rgba(245,247,250,0.98);
+            color: #111827;
+            border: 1px solid rgba(0,0,0,0.18);
+            border-radius: 10px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+            padding: 10px;
+            font: 600 12px/1.2 'Inter', sans-serif;
+            text-align: left;
+        }
+
+        #testPanel.open { display: block; }
+        #testPanel .testTitle { font-weight: 900; margin: 0 0 8px; }
+        #testPanel .testRow { display: flex; gap: 7px; margin-top: 7px; }
+        #testPanel label { display: block; flex: 1; font-size: 10px; }
+        #testPanel input {
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 3px;
+            padding: 5px;
+            font: 600 12px 'Inter', sans-serif;
+        }
+        #testPanel button {
+            flex: 1;
+            border: 0;
+            border-radius: 6px;
+            padding: 7px 8px;
+            font: 800 11px 'Inter', sans-serif;
+            cursor: pointer;
+        }
+        #applyTest { background: #111827; color: white; }
+        #liveTest { background: #dbe3ee; color: #111827; }
+        #testStatus { margin-top: 7px; font-size: 10px; font-weight: 700; }
     </style>
 </head>
 <body>
+
+    <button id="testToggle" type="button" aria-label="Open test date and time controls">TEST</button>
+    <div id="testPanel" aria-hidden="true">
+        <div class="testTitle">Preview as a specific date/time</div>
+        <div class="testRow">
+            <label>Date
+                <input id="testDate" type="date">
+            </label>
+            <label>Time
+                <input id="testTime" type="time" step="1">
+            </label>
+        </div>
+        <div class="testRow">
+            <button id="applyTest" type="button">Use Test Date/Time</button>
+            <button id="liveTest" type="button">Use Live</button>
+        </div>
+        <div id="testStatus">LIVE</div>
+    </div>
 
     <div id="scaling-wrapper">
         <div style="width: 100%; display: flex; justify-content: center;">
@@ -158,6 +236,51 @@
     </div>
 <script>
         
+
+        var testDateTime = null;
+
+        function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+        function formatDateInput(date) {
+            return date.getFullYear() + "-" + pad2(date.getMonth() + 1) + "-" + pad2(date.getDate());
+        }
+
+        function formatTimeInput(date) {
+            return pad2(date.getHours()) + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
+        }
+
+        function getDisplayNow() {
+            return testDateTime ? new Date(testDateTime.getTime()) : new Date();
+        }
+
+        function applyTestDateTime() {
+            var dateValue = document.getElementById("testDate").value;
+            var timeValue = document.getElementById("testTime").value || "00:00:00";
+            if (!dateValue) return;
+
+            var dp = dateValue.split("-");
+            var tp = timeValue.split(":");
+            testDateTime = new Date(
+                parseInt(dp[0], 10),
+                parseInt(dp[1], 10) - 1,
+                parseInt(dp[2], 10),
+                parseInt(tp[0] || "0", 10),
+                parseInt(tp[1] || "0", 10),
+                parseInt(tp[2] || "0", 10),
+                0
+            );
+            document.getElementById("testStatus").innerText = "TESTING: " + (testDateTime.getMonth()+1) + "/" + testDateTime.getDate() + "/" + testDateTime.getFullYear() + " " + formatTimeInput(testDateTime);
+            update();
+        }
+
+        function useLiveDateTime() {
+            testDateTime = null;
+            var now = new Date();
+            document.getElementById("testDate").value = formatDateInput(now);
+            document.getElementById("testTime").value = formatTimeInput(now);
+            document.getElementById("testStatus").innerText = "LIVE";
+            update();
+        }
 
         var activityPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Period 2",start:"09:35",end:"10:35"},{name:"Passing Time",start:"10:35",end:"10:40"},{name:"Period 4",start:"10:40",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Seminar",start:"13:45",end:"15:00"}];
         var firstTwoDaysPeriods = [{name:"Seminar",start:"08:30",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 1",start:"10:35",end:"11:30"},{name:"Passing Time",start:"11:30",end:"11:35"},{name:"Period 3",start:"11:35",end:"13:00"},{name:"Passing Time",start:"13:00",end:"13:05"},{name:"Period 2",start:"13:05",end:"14:00"},{name:"Passing Time",start:"14:00",end:"14:05"},{name:"Period 4",start:"14:05",end:"15:00"}];
@@ -197,7 +320,7 @@ function fitToWidth(e, w) {
         }
 
         function update() {
-            var now = new Date();
+            var now = getDisplayNow();
             var curr = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             var d = (now.getMonth() + 1) + "/" + now.getDate() + "/" + now.getFullYear();
             var dt = null;
@@ -289,6 +412,20 @@ function fitToWidth(e, w) {
         }
 
         window.onload = function() {
+            var now = new Date();
+            document.getElementById("testDate").value = formatDateInput(now);
+            document.getElementById("testTime").value = formatTimeInput(now);
+
+            var toggle = document.getElementById("testToggle");
+            var panel = document.getElementById("testPanel");
+            toggle.addEventListener("click", function() {
+                var opening = !panel.classList.contains("open");
+                panel.classList.toggle("open", opening);
+                panel.setAttribute("aria-hidden", opening ? "false" : "true");
+            });
+            document.getElementById("applyTest").addEventListener("click", applyTestDateTime);
+            document.getElementById("liveTest").addEventListener("click", useLiveDateTime);
+
             update();
             setInterval(update, 1000);
         };
