@@ -197,6 +197,11 @@ var lunches = [
   {name:"Lunch B", time:"12:35-1:00"},
   {name:"Lunch C", time:"1:15-1:40"}
 ];
+var firstTwoDaysLunches = [
+  {name:"Lunch A", time:"11:30-11:55"},
+  {name:"Lunch B", time:"12:05-12:30"},
+  {name:"Lunch C", time:"12:35-1:00"}
+];
 
 
 var testDateTime = null;
@@ -314,10 +319,10 @@ function makeRow(item, dayType, firstTwo) {
   return row;
 }
 
-function makeLunchBlock() {
+function makeLunchBlock(lunchList) {
   var block = document.createElement("div");
   block.className = "lunchBlock";
-  lunches.forEach(function(l) {
+  lunchList.forEach(function(l) {
     var r = document.createElement("div");
     r.className = "lunchRow";
     var n = document.createElement("div");
@@ -374,7 +379,7 @@ function render() {
 
   schedule.forEach(function(item) {
     scheduleEl.appendChild(makeRow(item, dayType, isFirstTwo));
-    if (item.lunches) scheduleEl.appendChild(makeLunchBlock());
+    if (item.lunches) scheduleEl.appendChild(makeLunchBlock(isFirstTwo ? firstTwoDaysLunches : lunches));
   });
 
   requestAnimationFrame(function() {
