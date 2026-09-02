@@ -1,1 +1,0 @@
-window.CAROUSEL_CONFIG={notifications:[{date:"2026-09-09",dayType:"A",heading:"Wednesday 9/9",schedule:[{name:"EAs/TAs Room 1312",time:"11:00 - 3:00",size:"main"},{name:"Nuts and Bolts (Library) All Staff",time:"1:00 - 3:00",size:"main"},{name:"Open House",time:"5:00 - 7:00",size:"main"}]}]};
