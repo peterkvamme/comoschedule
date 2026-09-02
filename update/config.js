@@ -1,5 +1,6 @@
 window.CAROUSEL_CONFIG = {
   dayType: "A",
+  heading: "A DAY",
   schedule: [
     { name: "Period 1", time: "8:30-9:50", size: "main" },
     { name: "Seminar", time: "9:55-10:30", size: "main" },
