@@ -91,6 +91,30 @@
         #toggleBtn:active {
             background: rgba(128, 128, 128, 0.2);
         }
+
+        #testToggle {
+            position: fixed; left: 8px; bottom: 8px; z-index: 1000;
+            border: 2px solid #fff; outline: 2px solid #2563eb;
+            border-radius: 9px; padding: 7px 11px;
+            background: #f2b620; color: #000;
+            font: 800 13px Arial, sans-serif; cursor: pointer;
+        }
+
+        #testPanel {
+            display: none; position: fixed; left: 8px; bottom: 52px; z-index: 1001;
+            width: min(300px, calc(100vw - 16px));
+            padding: 10px; border-radius: 10px; background: #fff; color: #111827;
+            box-shadow: 0 4px 18px rgba(0,0,0,.35); font: 12px Arial, sans-serif;
+        }
+        #testPanel.open { display: block; }
+        #testPanel strong { display: block; margin-bottom: 7px; }
+        #testPanel label { display: block; margin-top: 7px; font-size: 10px; font-weight: 700; }
+        #testPanel input { width: 100%; margin-top: 2px; padding: 6px; font: 12px Arial, sans-serif; }
+        #testButtons { display: flex; gap: 6px; margin-top: 8px; }
+        #testButtons button { flex: 1; padding: 7px 5px; border: 0; border-radius: 6px; font-weight: 700; cursor: pointer; }
+        #applyTest { background: #111827; color: white; }
+        #useLive { background: #dbe3ee; color: #111827; }
+        #testStatus { margin-top: 6px; font-size: 10px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -108,9 +132,27 @@
     </div>
 
     <button id="toggleBtn" onclick="toggleSchedule()"></button>
+    <button id="testToggle" type="button">TEST</button>
+    <div id="testPanel" aria-hidden="true">
+        <strong>Test date/time</strong>
+        <label>Date<input id="testDate" type="date"></label>
+        <label>Time<input id="testTime" type="time" step="60"></label>
+        <div id="testButtons">
+            <button id="applyTest" type="button">Use Test</button>
+            <button id="useLive" type="button">Use Live</button>
+        </div>
+        <div id="testStatus">LIVE</div>
+    </div>
     
     <script>
         var isActivityMode = false;
+        var testDateTime = null;
+
+        function pad2(n) { return String(n).padStart(2, "0"); }
+        function dateInputValue(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+        function timeInputValue(d) { return pad2(d.getHours()) + ":" + pad2(d.getMinutes()); }
+        function dateKey(d) { return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear(); }
+        function getDisplayDate() { return testDateTime ? new Date(testDateTime.getTime()) : new Date(); }
 
         var activityPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Period 2",start:"09:35",end:"10:35"},{name:"Passing Time",start:"10:35",end:"10:40"},{name:"Period 4",start:"10:40",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Seminar",start:"13:45",end:"15:00"}];
         var normalPeriods = [{name:"Period 1",start:"08:30",end:"09:50"},{name:"Passing Time",start:"09:50",end:"09:55"},{name:"Seminar",start:"09:55",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 2",start:"10:35",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
@@ -139,7 +181,7 @@
         }
 
         function update() {
-            var now = new Date();
+            var now = getDisplayDate();
             var curr = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             var d = (now.getMonth() + 1) + "/" + now.getDate() + "/" + now.getFullYear();
             var dt = null;
@@ -208,6 +250,32 @@
         }
 
         window.onload = function() {
+            var live = new Date();
+            document.getElementById("testDate").value = dateInputValue(live);
+            document.getElementById("testTime").value = timeInputValue(live);
+            var testToggle = document.getElementById("testToggle");
+            var testPanel = document.getElementById("testPanel");
+            testToggle.addEventListener("click", function() {
+                testPanel.classList.toggle("open");
+                testPanel.setAttribute("aria-hidden", testPanel.classList.contains("open") ? "false" : "true");
+            });
+            document.getElementById("applyTest").addEventListener("click", function() {
+                var dv = document.getElementById("testDate").value;
+                var tv = document.getElementById("testTime").value || "00:00";
+                if (!dv) return;
+                var dp = dv.split("-").map(Number), tp = tv.split(":").map(Number);
+                testDateTime = new Date(dp[0], dp[1] - 1, dp[2], tp[0] || 0, tp[1] || 0, 0, 0);
+                document.getElementById("testStatus").textContent = "TESTING: " + dateKey(testDateTime) + " " + timeInputValue(testDateTime);
+                update();
+            });
+            document.getElementById("useLive").addEventListener("click", function() {
+                testDateTime = null;
+                var now = new Date();
+                document.getElementById("testDate").value = dateInputValue(now);
+                document.getElementById("testTime").value = timeInputValue(now);
+                document.getElementById("testStatus").textContent = "LIVE";
+                update();
+            });
             update();
             setInterval(update, 1000);
         };

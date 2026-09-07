@@ -322,7 +322,7 @@ function render() {
   var special = isFirst ? "First day of school" : (isSecond ? "Second day of school" : (isActivity ? "Activity Day" : ""));
   var schedule = isFirstTwo ? firstTwoDaysSchedule : (isActivity ? activitySchedule : normalSchedule);
 
-  document.body.style.background = dayType === "A" ? "#FFD700" : "#000";
+  document.body.style.background = dayType === "A" ? "#f2b620" : "#000";
   document.body.style.color = dayType === "A" ? "#000" : "#fff";
   noSchool.style.display = "none";
   scheduleEl.style.display = "flex";
