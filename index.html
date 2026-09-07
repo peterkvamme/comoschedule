@@ -115,9 +115,12 @@
 
         var activityDays = ["12/22/2026", "2/2/2027", "4/2/2027", "4/30/2027"];
         var modifiedDays = ["9/18/2026"];
+        var firstDayOfSchoolDates = ["9/8/2026"];
+        var secondDayOfSchoolDates = ["9/9/2026"];
 
         var activityPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Period 2",start:"09:35",end:"10:35"},{name:"Passing Time",start:"10:35",end:"10:40"},{name:"Period 4",start:"10:40",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Seminar",start:"13:45",end:"15:00"}];
         var modifiedPeriods = [{name:"Period 1",start:"08:30",end:"09:30"},{name:"Passing Time",start:"09:30",end:"09:35"},{name:"Seminar",start:"09:35",end:"10:50"},{name:"Passing Time",start:"10:50",end:"10:55"},{name:"Period 2",start:"10:55",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
+        var firstTwoDaysPeriods = [{name:"Seminar",start:"08:30",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 1",start:"10:35",end:"11:30"},{name:"Passing Time",start:"11:30",end:"11:35"},{name:"Period 3",start:"11:35",end:"13:00"},{name:"Passing Time",start:"13:00",end:"13:05"},{name:"Period 2",start:"13:05",end:"14:00"},{name:"Passing Time",start:"14:00",end:"14:05"},{name:"Period 4",start:"14:05",end:"15:00"}];
         var normalPeriods = [{name:"Period 1",start:"08:30",end:"09:50"},{name:"Passing Time",start:"09:50",end:"09:55"},{name:"Seminar",start:"09:55",end:"10:30"},{name:"Passing Time",start:"10:30",end:"10:35"},{name:"Period 2",start:"10:35",end:"11:50"},{name:"Passing Time",start:"11:50",end:"11:55"},{name:"Period 3",start:"11:55",end:"13:40"},{name:"Passing Time",start:"13:40",end:"13:45"},{name:"Period 4",start:"13:45",end:"15:00"}];
 
         var aDays = ["9/8/2026", "9/10/2026", "9/14/2026", "9/16/2026", "9/18/2026", "9/23/2026", "9/25/2026", "9/29/2026", "10/1/2026", "10/5/2026", "10/7/2026", "10/9/2026", "10/13/2026", "10/19/2026", "10/21/2026", "10/23/2026", "10/27/2026", "10/29/2026", "11/2/2026", "11/4/2026", "11/6/2026", "11/10/2026", "11/12/2026", "11/17/2026", "11/19/2026", "11/23/2026", "11/25/2026", "12/1/2026", "12/3/2026", "12/7/2026", "12/9/2026", "12/11/2026", "12/15/2026", "12/17/2026", "12/21/2026", "1/4/2027", "1/6/2027", "1/8/2027", "1/12/2027", "1/14/2027", "1/19/2027", "1/21/2027", "1/25/2027", "1/27/2027", "2/1/2027", "2/3/2027", "2/5/2027", "2/9/2027", "2/11/2027", "2/16/2027", "2/18/2027", "2/22/2027", "2/24/2027", "2/26/2027", "3/2/2027", "3/4/2027", "3/8/2027", "3/11/2027", "3/15/2027", "3/17/2027", "3/19/2027", "3/23/2027", "3/25/2027", "3/29/2027", "3/31/2027", "4/2/2027", "4/13/2027", "4/15/2027", "4/19/2027", "4/21/2027", "4/23/2027", "4/27/2027", "4/29/2027", "5/3/2027", "5/5/2027", "5/7/2027", "5/11/2027", "5/13/2027", "5/18/2027", "5/20/2027", "5/24/2027", "5/26/2027", "5/28/2027", "6/2/2027", "6/4/2027", "6/8/2027", "6/10/2027"];
@@ -151,6 +154,9 @@
 
             var isModified = modifiedDays.indexOf(d) > -1;
             var isAutomaticActivity = activityDays.indexOf(d) > -1;
+            var isFirstDay = firstDayOfSchoolDates.indexOf(d) > -1;
+            var isSecondDay = secondDayOfSchoolDates.indexOf(d) > -1;
+            var isFirstTwoDays = isFirstDay || isSecondDay;
 
             document.body.style.backgroundColor = (dt === "A" ? "#f2b620" : (dt === "B" ? "black" : "#f0f4f8"));
             document.body.style.color = (dt === "A" ? "black" : (dt === "B" ? "white" : "#1a202c"));
@@ -163,9 +169,9 @@
                 fitToWidth(m, 0.92); return;
             }
 
-            currentScheduleMode = manualScheduleMode || (isModified ? "modified" : (isAutomaticActivity ? "activity" : "normal"));
-            var activeSchedule = currentScheduleMode === "modified" ? modifiedPeriods : (currentScheduleMode === "activity" ? activityPeriods : normalPeriods);
-            var scheduleLabel = currentScheduleMode === "modified" ? "Modified Schedule" : (currentScheduleMode === "activity" ? "Activity Day" : "");
+            currentScheduleMode = isFirstDay ? "first" : (isSecondDay ? "second" : (manualScheduleMode || (isModified ? "modified" : (isAutomaticActivity ? "activity" : "normal"))));
+            var activeSchedule = isFirstTwoDays ? firstTwoDaysPeriods : (currentScheduleMode === "modified" ? modifiedPeriods : (currentScheduleMode === "activity" ? activityPeriods : normalPeriods));
+            var scheduleLabel = isFirstDay ? "First Day of School" : (isSecondDay ? "Second Day of School" : (currentScheduleMode === "modified" ? "Modified Schedule" : (currentScheduleMode === "activity" ? "Activity Day" : "")));
             actL.innerText = scheduleLabel;
             actL.style.display = scheduleLabel ? "inline-block" : "none";
             var cp = null, pi = -1;
@@ -178,12 +184,12 @@
 
             if (cp) {
                 var pn = cp.name, tl = "Time Left";
-                if (dt === "B" && pn === "Seminar") pn = "Club period";
+                if (dt === "B" && pn === "Seminar" && !isFirstTwoDays) pn = "Club period";
                 if (pn.indexOf("Period") > -1) pn += dt;
                 if (pn.indexOf("Passing") > -1 && pi < activeSchedule.length - 1) {
                     var n = activeSchedule[pi + 1].name;
                     if (n.indexOf("Period") > -1) n = n.replace("Period ", "") + dt;
-                    else if (n === "Seminar") n = (dt === "B") ? "Club" : "Seminar";
+                    else if (n === "Seminar") n = (dt === "B" && !isFirstTwoDays) ? "Club" : "Seminar";
                     tl = "Until " + n;
                 }
                 var ep = cp.end.split(':'), rem = (parseInt(ep[0])*3600 + parseInt(ep[1])*60) - curr;
@@ -200,7 +206,7 @@
                 } else { m.innerText = "School out"; s.innerText = ""; t.innerText = ""; }
             }
             
-            if(scheduleLabel) fitToWidth(actL, isModified ? 0.58 : 0.40); 
+            if(scheduleLabel) fitToWidth(actL, isFirstTwoDays ? 0.72 : (currentScheduleMode === "modified" ? 0.58 : 0.40)); 
             fitToWidth(m, 0.92);
             fitToWidth(s, 0.75);
             fitToWidth(t, 0.75);
